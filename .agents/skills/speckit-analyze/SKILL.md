@@ -60,7 +60,7 @@ Identify inconsistencies, duplications, ambiguities, and underspecified items ac
 
 **STRICTLY READ-ONLY**: Do **not** modify any files. Output a structured analysis report. Offer an optional remediation plan (user must explicitly approve before any follow-up editing commands would be invoked manually).
 
-**Constitution Authority**: The project constitution (`.specify/memory/constitution.md`) is **non-negotiable** within this analysis scope. Constitution conflicts are automatically CRITICAL and require adjustment of the spec, plan, or tasks—not dilution, reinterpretation, or silent ignoring of the principle. If a principle itself needs to change, that must occur in a separate, explicit constitution update outside `/speckit-analyze`.
+**Constitution Authority**: The project constitution (`.specify/memory/constitution.md`) and its linked companion standards (`.specify/memory/coding-standards.md` and `.specify/memory/logging-standards.md`, when present) form the project's Co-Applied Governance Suite, with `constitution.md` holding supreme non-negotiable authority within this analysis scope. Governance conflicts are automatically CRITICAL and require adjustment of the spec, plan, or tasks—not dilution, reinterpretation, or silent ignoring of the principle or rule. If a principle or standard itself needs to change, that must occur in a separate, explicit constitution update outside `/speckit-analyze`.
 
 ## Execution Steps
 
@@ -102,9 +102,9 @@ Load only the minimal necessary context from each artifact:
 - Parallel markers [P]
 - Referenced file paths
 
-**From constitution:**
+**From constitution & governance suite:**
 
-- Load `.specify/memory/constitution.md` for principle validation
+- Load `.specify/memory/constitution.md`, `.specify/memory/coding-standards.md`, and `.specify/memory/logging-standards.md` (when present) for principle and standards validation. (If companion standards are missing in a legacy repo, proceed with `constitution.md`).
 
 ### 3. Build Semantic Models
 
@@ -113,7 +113,7 @@ Create internal representations (do not include raw artifacts in output):
 - **Requirements inventory**: For each Functional Requirement (FR-###) and Success Criterion (SC-###), record a stable key. Use the explicit FR-/SC- identifier as the primary key when present, and optionally also derive an imperative-phrase slug for readability (e.g., "User can upload file" → `user-can-upload-file`). Include only Success Criteria items that require buildable work (e.g., load-testing infrastructure, security audit tooling), and exclude post-launch outcome metrics and business KPIs (e.g., "Reduce support tickets by 50%").
 - **User story/action inventory**: Discrete user actions with acceptance criteria
 - **Task coverage mapping**: Map each task to one or more requirements or stories (inference by keyword / explicit reference patterns like IDs or key phrases)
-- **Constitution rule set**: Extract principle names and MUST/SHOULD normative statements
+- **Constitution rule set**: Extract principle names and MUST/SHOULD normative statements from `constitution.md` as well as concrete stack/logging MUST/SHOULD rules from `coding-standards.md` and `logging-standards.md`
 
 ### 4. Detection Passes (Token-Efficient Analysis)
 
@@ -137,8 +137,8 @@ Focus on high-signal findings. Limit to 50 findings total; aggregate remainder i
 
 #### D. Constitution Alignment
 
-- Any requirement or plan element conflicting with a MUST principle
-- Missing mandated sections or quality gates from constitution
+- Any requirement, plan element, or task conflicting with a `constitution.md` MUST principle or a linked normative rule in `coding-standards.md` / `logging-standards.md`
+- Missing mandated sections or quality gates from constitution (such as Principle III test justification)
 
 #### E. Coverage Gaps
 

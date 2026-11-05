@@ -59,7 +59,7 @@ You **MUST** consider the user input before proceeding (if not empty).
 2. **Load design documents**: Read from FEATURE_DIR:
    - **Required**: plan.md (tech stack, libraries, structure), spec.md (user stories with priorities)
    - **Optional**: data-model.md (entities), contracts/ (interface contracts), research.md (decisions), quickstart.md (test scenarios)
-   - **IF EXISTS**: Load `.specify/memory/constitution.md` for project principles and governance constraints
+   - **IF EXISTS**: Load project governance suite: `.specify/memory/constitution.md`, `.specify/memory/coding-standards.md`, and `.specify/memory/logging-standards.md` for project principles, stack-specific coding conventions, and logging/telemetry rules. If companion standards are absent in a legacy repo, proceed with `constitution.md` without crashing (companion standards can be initialized via `/speckit-constitution`).
    - Note: Not all projects have all documents. Generate tasks based on what's available.
 
 3. **Execute task generation workflow**:
@@ -68,6 +68,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - If data-model.md exists: Extract entities and map to user stories
    - If contracts/ exists: Map interface contracts to user stories
    - If research.md exists: Extract decisions for setup tasks
+   - Ensure generated tasks honor compile-time boundary rules, canonical error result types, testing conventions, and structured logging rules defined in the governance suite (`.specify/memory/constitution.md`, `.specify/memory/coding-standards.md`, `.specify/memory/logging-standards.md`)
    - Generate tasks organized by user story (see Task Generation Rules below)
    - Generate dependency graph showing user story completion order
    - Create parallel execution examples per user story

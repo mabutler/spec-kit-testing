@@ -85,10 +85,7 @@ of the code relative to the feature's artifacts — no git, no branch comparison
 When the codebase already satisfies everything, the command MUST leave `tasks.md`
 **byte-for-byte unchanged** (no empty Convergence header) and report a clean result.
 
-**Constitution Authority**: The project constitution (`.specify/memory/constitution.md`) is
-**non-negotiable**. Code that violates a MUST principle is the highest-severity finding and
-produces a corresponding remediation task. If the constitution is an unfilled template,
-skip constitution checks gracefully rather than failing.
+**Constitution Authority**: The project constitution (`.specify/memory/constitution.md`) along with its linked companion standards (`.specify/memory/coding-standards.md` and `.specify/memory/logging-standards.md`, when present and populated) is **non-negotiable**. Code that violates a MUST principle or standard is the highest-severity finding and produces a corresponding remediation task. If a governance file is absent or an unfilled template, skip its checks gracefully rather than failing.
 
 ## Execution Steps
 
@@ -100,6 +97,8 @@ Run `.specify/scripts/bash/check-prerequisites.sh --json --require-spec --requir
 - PLAN = FEATURE_DIR/plan.md
 - TASKS = FEATURE_DIR/tasks.md
 - CONSTITUTION = `.specify/memory/constitution.md` (if present)
+- CODING_STANDARDS = `.specify/memory/coding-standards.md` (if present)
+- LOGGING_STANDARDS = `.specify/memory/logging-standards.md` (if present)
 If `spec.md`, `plan.md`, or `tasks.md` is missing, STOP with a clear, actionable message naming the
 prerequisite command to run (`/speckit-specify` for a missing spec, `/speckit-plan` for a missing plan,
 `/speckit-tasks` for missing tasks). Do not produce partial output.
@@ -129,16 +128,16 @@ Load only the minimal necessary context from each artifact:
 - Task IDs (to compute the next ID and next phase number)
 - Descriptions, phase grouping, and referenced file paths
 
-**From constitution (if not an unfilled template):**
+**From constitution and companion standards (if not unfilled templates):**
 
-- Principle names and MUST/SHOULD normative statements
+- Principle names and MUST/SHOULD normative statements from `constitution.md`, `coding-standards.md`, and `logging-standards.md` (skipping any file that is absent or an unfilled template)
 
 ### 3. Build the Intent Inventory
 
 Create an internal model (do not echo raw artifacts):
 
 - **Requirements inventory**: one stable key per FR-### / SC-### / user-story acceptance
-  scenario (e.g. `US1/AC2`), plus the plan decisions and constitution principles that
+  scenario (e.g. `US1/AC2`), plus buildable obligations from `constitution.md`, `coding-standards.md`, and `logging-standards.md` as well as plan decisions that
   impose buildable obligations.
 - **Code-scope map**: from the file paths named in `plan.md` and `tasks.md`, plus a keyword
   search for the concepts each requirement describes, derive the set of source files and
