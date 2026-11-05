@@ -51,6 +51,7 @@ $RequiredAssets = @(
     ".specify/templates/constitution-template.md",
     ".specify/templates/coding-standards-template.md",
     ".specify/templates/logging-standards-template.md",
+    ".specify/templates/roadmap-template.md",
     ".specify/extensions.yml",
     ".agents/agents/speckit-reasoner.md",
     ".agents/agents/speckit-executor.md"
@@ -75,6 +76,8 @@ $Skipped = 0
 $SpecifyCount = 0
 $AgentsCount = 0
 
+# Protected User-State Boundary (PRESERVE_USER_STATE):
+# Never clobbers .specify/memory/*, overrides, feature.json, local profiles, specs/*, or root ROADMAP.md
 $SourceFiles = Get-ChildItem -Path (Join-Path $ResolvedSrc ".specify"), (Join-Path $ResolvedSrc ".agents") -Recurse -File | Where-Object {
     $rel = $_.FullName.Substring($ResolvedSrc.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar).Replace('\', '/')
     -not ($rel.StartsWith(".specify/memory/") -or $rel.StartsWith(".specify/templates/overrides/") -or $rel -eq ".specify/feature.json" -or ($rel.StartsWith(".agents/agents/") -and $rel.EndsWith(".local.md")))

@@ -47,8 +47,8 @@ fi
 for req in ".specify/templates/spec-template.md" ".specify/templates/plan-template.md" \
            ".specify/templates/tasks-template.md" ".specify/templates/checklist-template.md" \
            ".specify/templates/constitution-template.md" ".specify/templates/coding-standards-template.md" \
-           ".specify/templates/logging-standards-template.md" ".specify/extensions.yml" \
-           ".agents/agents/speckit-reasoner.md" ".agents/agents/speckit-executor.md"; do
+           ".specify/templates/logging-standards-template.md" ".specify/templates/roadmap-template.md" \
+           ".specify/extensions.yml" ".agents/agents/speckit-reasoner.md" ".agents/agents/speckit-executor.md"; do
   if [ ! -f "$SRC_ROOT/$req" ]; then
     echo "CRITICAL: Source bundle is missing required assets: $req" >&2
     exit 1
@@ -87,6 +87,8 @@ copy_file() {
 }
 
 # Copy managed files from .specify and .agents
+# Protected User-State Boundary (PRESERVE_USER_STATE):
+# Never clobbers .specify/memory/*, overrides, feature.json, local profiles, specs/*, or root ROADMAP.md
 while IFS= read -r rel; do
   [ -z "$rel" ] && continue
   copy_file "$rel"

@@ -15,3 +15,7 @@ provides:
       name: "logging-standards-template"
       file: "templates/logging-standards-template.md"
       strategy: "replace"
+    - type: "template"
+      name: "roadmap-template"
+      file: "templates/roadmap-template.md"
+      strategy: "replace"

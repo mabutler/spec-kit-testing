@@ -22,6 +22,7 @@ This command manages the lifecycle, installation integrity, non-destructive upgr
 ### Protected User-State Rule
 
 The following paths belong strictly to the user and the project's living governance:
+- `ROADMAP.md` (Strategic multi-phase roadmap at repository root)
 - `.specify/memory/constitution.md`
 - `.specify/memory/coding-standards.md`
 - `.specify/memory/logging-standards.md`
@@ -77,14 +78,14 @@ Every target file is evaluated against the source bundle and install manifest us
 Triggered when executed without `--upgrade` or `--check`:
 1. **Asset Scan**:
    - Inspect target repository for all canonical managed files:
-     - Templates: `.specify/templates/*.md`
+     - Templates: `.specify/templates/*.md` (including `roadmap-template.md`)
      - Presets: `.specify/presets/.registry` and packages (`.specify/presets/base-governance/`)
      - Extensions: `.specify/extensions/.registry` and packages (`.specify/extensions/speckit-orchestrator/`)
      - Workflows: `.specify/workflows/workflow-registry.json`, `.specify/workflows/speckit/workflow.yml`
      - Integrations: `.specify/integrations/speckit.manifest.json`, `agy.manifest.json`, `speckit-bootstrap.manifest.json`
      - Configuration: `.specify/extensions.yml`, `.specify/init-options.json`, `.specify/integration.json`, `.specify/.gitignore`
      - Role Profiles: `.agents/agents/speckit-reasoner.md`, `.agents/agents/speckit-executor.md`
-     - Skills: All 11 skills in `.agents/skills/`
+     - Skills: All 12 skills in `.agents/skills/` (including `speckit-roadmap`)
 2. **Obsolete Script Detection & Removal**:
    - Check if legacy `scripts/` directory exists under `.specify`.
    - If found, delete the legacy directory and purge any obsolete script entries from `.specify/integrations/speckit.manifest.json`.

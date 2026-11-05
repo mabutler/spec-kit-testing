@@ -56,6 +56,31 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 The text the user typed after `/speckit-specify` in the triggering message **is** the feature description. Assume you always have it available in this conversation even if `$ARGUMENTS` appears literally below. Do not ask the user to repeat it unless they provided an empty command.
 
+0. **Roadmap Reference Parsing & Phase Context Extraction**:
+   Check if the user input references a roadmap phase (e.g., `"next roadmap phase"`, `"Phase N"`, `--next`, or handoff from `/speckit-roadmap --next` / `--specify <phase>`):
+   - **Locate & Parse `ROADMAP.md`**:
+     Read `${REPO_ROOT}/ROADMAP.md`. If missing or empty, fail closed with a `WARN` rejection:
+     `[WARN] Boundary rejection: ROADMAP.md is missing or empty. Please run /speckit-roadmap first or provide an explicit feature description.`
+     and halt before creating any files.
+   - **Select Target Phase**:
+     - If a specific phase (e.g., `Phase N`) was requested, select `Phase N`.
+     - If `"next roadmap phase"` or `--next` was requested, evaluate phase statuses using deterministic evidence rules (inspecting `specs/NNN-*` and `ROADMAP.md`) and select the earliest `PLANNED` phase whose declared `Prerequisites` are all `COMPLETED` (and not already `IN_PROGRESS` or `COMPLETED` in current checkout or an active worktree).
+   - **Verify Prerequisites**:
+     - Confirm all prerequisite phases listed for the target phase have status `COMPLETED`.
+     - If any prerequisite is incomplete, halt before creating the spec directory, emit a `WARN` boundary rejection naming the incomplete prerequisite(s), and ask for confirmation (`--force`).
+   - **Extract Authoritative Phase Context**:
+     Extract from the target phase in `ROADMAP.md`:
+     - `Initiative Title` (derives `<short-name>`)
+     - `Goal` (from Overview of Initiatives table)
+     - `### Problem Statement`
+     - `### Architectural Fit in Spec Kit`
+     - `### Key Deliverables`
+     - `### Key Design Decisions to Resolve During Spec`
+     Combine these structured inputs with any additional user constraints in `$ARGUMENTS` to populate `SPECIFY_FEATURE_DIRECTORY/spec.md`.
+   - **Update `ROADMAP.md` Phase State**:
+     - Update the selected phase's `Status` to `IN_PROGRESS` and `Spec` to `specs/<NNN>-<short-name>/` in both the `## Overview of Initiatives` table and the phase's `### Metadata` block.
+     - Update `**Last Updated**: YYYY-MM-DD` in `ROADMAP.md`.
+
 Given that feature description, do this:
 
 1. **Generate a concise short name** (2-4 words) for the feature:
@@ -70,8 +95,21 @@ Given that feature description, do this:
      - "Create a dashboard for analytics" → "analytics-dashboard"
      - "Fix payment processing timeout bug" → "fix-payment-timeout"
 
-2. **Branch creation** (optional, via hook):
+2. **Git Branch & Worktree Isolation**:
 
+   **Git Worktree Isolation Protocol** (when requested via `"Use a worktree"`, `"in a worktree"`, or `--worktree`):
+   1. **Determine Feature Slug & Branch (`<NNN>-<short-name>`)**:
+      - Scan `specs/` across the main checkout and active `git worktree list` branches to determine the next available 3-digit sequential prefix `<NNN>` (or match `Phase N` → `00N-<short-name>`).
+   2. **Configure Local Git Exclusion**:
+      - Ensure `.worktrees/` is present in the primary repository's `.git/info/exclude` file so worktree directories never appear as untracked files in `git status`.
+   3. **Create Isolated Worktree**:
+      - Execute `git worktree add -b <NNN>-<short-name> .worktrees/<NNN>-<short-name> HEAD` (or if branch `<NNN>-<short-name>` already exists, `git worktree add .worktrees/<NNN>-<short-name> <NNN>-<short-name>`).
+   4. **Isolate Feature State Inside Worktree**:
+      - Set active workspace root for the specification and downstream pipeline to `${PRIMARY_REPO_ROOT}/.worktrees/<NNN>-<short-name>`.
+      - Create `specs/<NNN>-<short-name>/spec.md` and `specs/<NNN>-<short-name>/checklists/requirements.md` inside the worktree.
+      - Write `{"feature_directory": "specs/<NNN>-<short-name>"}` to `.worktrees/<NNN>-<short-name>/.specify/feature.json`, leaving the primary checkout's `.specify/feature.json` untouched.
+
+   **Standard Branch Creation** (when not using worktrees):
    If a `before_specify` hook ran successfully in the Pre-Execution Checks above, it will have created/switched to a git branch and output JSON containing `BRANCH_NAME` and `FEATURE_NUM`. Note these values for reference, but the branch name does **not** dictate the spec directory name.
 
    If the user explicitly provided `GIT_BRANCH_NAME`, pass it through to the hook so the branch script uses the exact value as the branch name (bypassing all prefix/suffix generation).
@@ -346,5 +384,7 @@ Success criteria must be:
 ## Done When
 
 - [ ] Specification written to `SPEC_FILE` and validated against quality checklist
+- [ ] Roadmap phase updated to `IN_PROGRESS` with linked spec directory in `ROADMAP.md` (if initiated from a roadmap phase)
+- [ ] Git worktree isolated and configured in `.specify/feature.json` (if worktree isolation requested)
 - [ ] Extension hooks dispatched or skipped according to the rules in Mandatory Post-Execution Hooks above
 - [ ] Completion reported to user with feature directory, spec file path, and checklist results
