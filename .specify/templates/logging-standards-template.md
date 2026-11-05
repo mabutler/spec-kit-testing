@@ -10,15 +10,15 @@ This document operationalizes the telemetry, logging, and observability principl
 
 ---
 
-## Five-Tier Severity Taxonomy
+## Severity Taxonomy
 
-Telemetric event logging divide strictly into five standardized severity levels mapped to the Two-Tier Failure Model:
+Telemetric event logging divides into four core severity levels mapped to the Two-Tier Failure Model, plus an optional fifth level (`TRACE`) for mechanical function tracing:
 
 - **CRITICAL** — System restarting or halting immediately. Fatal defect invariants, violated preconditions, unrecoverable programmer errors, or corrupted internal state. MUST include exception details and restart reason.
 - **WARN** — Recoverable operation rejection or failure where execution continues. Worth monitoring for patterns in production; declined or failed operations MUST NOT be hidden in DEBUG.
 - **INFO** — Significant lifecycle milestone. States the business or system outcome rather than internal diagnostic data; should read like an audit trail. Significant actions MUST log both attempt and result so mid-operation crashes leave a record.
 - **DEBUG** — Application's interpretation of state and diagnostic reasoning prior to a milestone ("engineer's working notes"). Carries internal diagnostic reasoning; MUST NOT leak into INFO.
-- **TRACE** — Mechanical entry and exit logging on every function and return path with parameter and return values.
+- **TRACE (Optional)** — Mechanical entry and exit logging on every function and return path with parameter and return values, when enabled by the project.
 
 ---
 
@@ -32,12 +32,14 @@ Telemetric event logging divide strictly into five standardized severity levels 
    - Declined, rejected, or failed-but-continuing operations MUST be logged at `WARN`, never hidden in `DEBUG`.
 4. **Lifecycle Actions in Verbose Layers**:
    - An internal engine, driver, or backend module behind a higher-level entry point still logs its one-time startup, initialization, and shutdown actions at `INFO` if the action executes once per lifecycle and its effect persists for the entire lifecycle. The verbose default for such layers applies only to recurring, per-event work.
-5. **No Redundant Callee Logging**:
+5. **No Redundant Callee Logging (When TRACE Is Enabled)**:
    - Do not re-log what a callee's `TRACE` already shows. If data is significant enough for `DEBUG`, prefer promoting that `TRACE` line to `DEBUG` over adding duplicate lines.
 
 ---
 
-## TRACE Entry & Exit Rules
+## TRACE Entry & Exit Rules (Optional)
+
+*Applies only when mechanical `TRACE`-level function tracing is enabled for this project.*
 
 1. **Comprehensive Coverage**:
    - Mechanical entry and exit logging on every function and every return path.

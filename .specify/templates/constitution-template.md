@@ -40,15 +40,15 @@ Failures divide into two distinct categories and MUST be handled accordingly:
 
 ### III. Behavioral, Value-Driven Testing & Deterministic Execution
 Every automated test MUST guard meaningful behavioral contracts or plausible regressions through production entry points.
-- **Encapsulation & Contract Focus**: Visibility MUST NOT be widened (`private` to `public`), and test-only members MUST NOT be added solely to reach internals (`InternalsVisibleTo` requires written justification). Tests MUST verify behavioral outcomes and MUST NOT assert on log text, operator display strings, or the absence of deleted code/files.
+- **Encapsulation & Contract Focus**: Visibility MUST NOT be widened (`private` to `public`), and test-only members MUST NOT be added solely to reach internals (internal-visibility exemptions require written justification). Tests MUST verify behavioral outcomes and MUST NOT assert on log text, operator display strings, or the absence of deleted code/files.
 <!-- DEFAULT-CLAUSE: PLAN-JUSTIFICATION-AND-SKIP-ALLOWLIST (REPLACEABLE-BY: MODULE-B)
 Target: Principle III
 -->
 - **Plan Justification & Skip Allowlist**: Every `/speckit-plan` MUST list the tests it intends to write and state what risk each guards against. Comprehensive behavioral and branch coverage is expected across all domain logic, state machines, parsers, and error boundaries. Omitting unit tests without a plan justification is permitted ONLY for:
-  1. Compiler-generated, XSD/schema-generated, or source-generator code.
-  2. Defect-invariant guards (`UnreachableException`, internal post-validation assertions) unreachable via public entry points.
-  3. Pure data carriers (DTOs, immutable `record` snapshots) and thin pass-through adapter wrappers over OS/hardware seams.
-  4. Application host bootstrap (`Program.cs`), declarative CLI binding declarations, and declarative UI layout markup covered by smoke/acceptance gates.
+  1. Compiler-generated, schema-generated, or code-generator output.
+  2. Defect-invariant guards (unreachable-code traps and internal post-validation assertions) unreachable via public entry points.
+  3. Pure data carriers (DTOs, immutable value/record snapshots) and thin pass-through adapter wrappers over OS/hardware seams.
+  4. Application host bootstrap entry points, declarative CLI binding declarations, and declarative UI layout markup covered by smoke/acceptance gates.
   5. One-off build/provisioning scripts verified by automated linters and live acceptance gates.
 <!-- /DEFAULT-CLAUSE: PLAN-JUSTIFICATION-AND-SKIP-ALLOWLIST -->
 <!-- OPTIONAL-MODULE: MODULE-B
@@ -59,14 +59,14 @@ Title: Strict 100% Branch Coverage Profile
 -->
 - **100% Branch Coverage Gate**: 100% automated branch coverage MUST be maintained across the codebase; line coverage alone does not satisfy this gate. Coverage exclusions require a written code annotation and are permitted ONLY for schema-generated code and defect-invariant checks (whose justification must name the invariant protected).
 <!-- /OPTIONAL-MODULE: MODULE-B -->
-- **Unprivileged, Deterministic Unit Tests**: Automated unit tests MUST run without administrator/root privileges and MUST NOT touch real disks/partitions, real network endpoints, or committed cryptographic key material (ephemeral keys/certs are generated per run). Time MUST be injected (`TimeProvider` or explicit timestamps) and randomness seeded.
+- **Unprivileged, Deterministic Unit Tests**: Automated unit tests MUST run without administrator/root privileges and MUST NOT touch real disks/partitions, real network endpoints, or committed cryptographic key material (ephemeral keys/certs are generated per run). Time MUST be injected via a time abstraction or explicit timestamps and randomness seeded.
 - **Hostile Boundary Coverage & Bug Ratchet**: Any parser of untrusted bytes or security verification gate MUST include negative and hostile-input tests (malformed payloads, oversized counts, offset overflows, bad signatures). Every defect discovered in integration testing, simulator runs, or production MUST receive a reproducing regression test alongside the fix.
 
 ### IV. Single Authoritative State, Enforced Boundaries & Safe Concurrency
 - **Single Source of Truth**: Every piece of domain state MUST have exactly one authoritative owning model. Registries, lookup tables, and projections are read-only views or pure indexes—never competing, independently mutated copies of state owned elsewhere.
-- **Structurally Enforced Boundaries**: Core domain logic MUST NOT depend on wire/serialization schema types or raw OS/hardware/process I/O. Wire translation happens strictly at the boundary and is enforced at compile time via the project reference graph (e.g., `PrivateAssets="all"` / absent project references), not by import conventions. Disk, network, process, and hardware access MUST sit behind interface seams so unit tests use fakes.
-- **Safe Concurrency & Snapshot Isolation**: A thread holding an entity state lock MUST NOT acquire another entity lock or invoke external callbacks, event subscribers, or cross-entity logic while holding the lock. Side effects are recorded inside the critical section and dispatched in order *after* the lock is released. Code outside an entity's lock works exclusively from immutable snapshots (`record` / `record struct`) captured under the lock, never from live mutable references.
-- **Disambiguated Colliding Identifiers**: When two or more identifiers or unit-bearing quantities of the same primitive type (e.g., `DeviceId` and `HostId`) are routinely passed together across method boundaries, they MUST be wrapped in distinct, non-convertible value types (`readonly record struct`). Single-identifier lookups may use standard primitives.
+- **Structurally Enforced Boundaries**: Core domain logic MUST NOT depend on wire/serialization schema types or raw OS/hardware/process I/O. Wire translation happens strictly at the boundary and is enforced at compile time via the build/module dependency graph, not by import conventions. Disk, network, process, and hardware access MUST sit behind interface seams so unit tests use fakes.
+- **Safe Concurrency & Snapshot Isolation**: A thread holding an entity state lock MUST NOT acquire another entity lock or invoke external callbacks, event subscribers, or cross-entity logic while holding the lock. Side effects are recorded inside the critical section and dispatched in order *after* the lock is released. Code outside an entity's lock works exclusively from immutable snapshots captured under the lock, never from live mutable references.
+- **Disambiguated Colliding Identifiers**: When two or more identifiers or unit-bearing quantities of the same primitive type (e.g., `DeviceId` and `HostId`) are routinely passed together across method boundaries, they MUST be wrapped in distinct, non-convertible value types. Single-identifier lookups may use standard primitives.
 <!-- OPTIONAL-MODULE: MODULE-C
 Action: ADD
 Title: Table-Driven Dispatch
@@ -76,15 +76,15 @@ Target: Principle IV
 <!-- /OPTIONAL-MODULE: MODULE-C -->
 
 ### V. Centralized Dependencies & Protected Toolchain Gate
-- **Centralized, Locked Supply Chain**: All package versions and shared compiler settings MUST be declared centrally at the repository root (e.g., `Directory.Packages.props`, `Directory.Build.props`, and committed lockfiles). Project-local overrides are forbidden without documented justification. Internal shared code within the repository is consumed via project/module reference, never packaged internally.
+- **Centralized, Locked Supply Chain**: All package versions and shared compiler/linter settings MUST be declared centrally at the repository root with committed lockfiles. Project-local overrides are forbidden without documented justification. Internal shared code within the repository is consumed via project/module reference, never packaged internally.
 - **Deliberate Package Selection**: Prefer mature, actively maintained libraries that substantially simplify design over custom infrastructure code; reject obscure, poorly maintained, or trivial micro-packages.
-- **Human-Only Toolchain & Security Gate**: AI agents MUST NOT—without explicit human instruction—add or upgrade third-party packages, modify package sources (`NuGet.config`), alter SDK/toolchain versions (`global.json`), weaken compiler warning/strictness flags, modify version manifests (`version.json`), or generate/modify cryptographic signing keys and certificates.
+- **Human-Only Toolchain & Security Gate**: AI agents MUST NOT—without explicit human instruction—add or upgrade third-party packages, modify package sources or registries, alter SDK/toolchain versions, weaken compiler/linter warning or strictness flags, modify version manifests, or generate/modify cryptographic signing keys and certificates.
 <!-- OPTIONAL-MODULE: MODULE-D
 Action: ADD
 Title: Regulated / Certified Systems
 Target: Principle V
 -->
-- **Reproducible Builds & Deliberate Versioning**: Submitted components MUST build deterministically from pinned toolchains; where bit-reproducibility is impossible (e.g., OS/WinPE images), component docs MUST specify the signed manifest verification used instead. major.minor versions change only by explicit human submission planning; patch is computed automatically from git history.
+- **Reproducible Builds & Deliberate Versioning**: Submitted components MUST build deterministically from pinned toolchains; where bit-reproducibility is impossible (e.g., OS/bootable images), component docs MUST specify the signed manifest verification used instead. major.minor versions change only by explicit human submission planning; patch is computed automatically from git history.
 <!-- OPTIONAL-SUBCLAUSE: MODULE-D-AOT-TRIM
 Action: OPTIONAL-INCLUSION
 Parent-Module: MODULE-D
@@ -100,10 +100,10 @@ Title: AOT / Trim-Safe Shared Libraries
 - **Verify Before Mutate/Destroy**: Destructive or irreversible steps (disk/partition erase, state reset, schema drop, file overwrite) MUST execute only after all cheap checks, space/resource checks, and full input verifications have passed, and MUST be protected by explicit confirmation or opt-in guards.
 
 ### VII. Code Hygiene, Ubiquitous Language & Safe Logging
-- **Zero Warnings & Read-Only Vendored Code**: The build treats warnings as errors (`TreatWarningsAsErrors`), and all code/scripts MUST pass configured linters. Vendored third-party code and generated schema files MUST NOT be edited or reformatted in place.
+- **Zero Warnings & Read-Only Vendored Code**: The build treats warnings as errors, and all code/scripts MUST pass configured linters. Vendored third-party code and generated schema files MUST NOT be edited or reformatted in place.
 - **Ubiquitous Language**: Code identifiers, UI screens, CLI tools, and documentation share one domain vocabulary; changes MUST NOT introduce a synonym for an existing concept.
 - **Present-Tense, High-Signal Comments & Docs**: Comments MUST explain the current implementation and *why* it is built that way—never narrate git or session history. Comments SHOULD document rejected alternatives only when needed to stop a developer from reintroducing a known defect via a naive refactor. Documentation MUST match actual implemented behavior and be updated in the same change.
-- **Structured, Safe Logging**: Logs MUST use structured templates and strictly separate lifecycle milestones/outcomes (`INFO`) from diagnostic reasoning/state (`DEBUG`), recoverable boundary rejections (`WARN`), and fatal invariant crashes (`CRITICAL`). Logs and operator-visible errors MUST NEVER output secrets, private keys, credentials, raw PII, or bearer financial instruments.
+- **Structured, Safe Logging**: Logs MUST use structured templates and strictly separate lifecycle milestones, diagnostic reasoning, recoverable boundary rejections, and fatal invariant crashes according to the severity taxonomy defined in `.specify/memory/logging-standards.md` / `docs/logging.md`. Logs and operator-visible errors MUST NEVER output secrets, private keys, credentials, raw PII, or bearer financial instruments.
 
 ## Development Workflow & Quality Gates
 
@@ -130,4 +130,4 @@ Any ratified exception to a Core Principle MUST be recorded here with: (1) Princ
   Degrading a higher-ranked concern to serve a lower-ranked one requires human owner ratification and an entry under **Recorded Deviations**.
 - **Amendment & Versioning**: Amendments require explicit human approval, a rationale, and a Semantic Version bump (`MAJOR` for backward-incompatible principle removals/redefinitions; `MINOR` for new principles or expanded gates; `PATCH` for clarifications). Only the most recent amendment summary is kept in the top HTML sync comment.
 
-**Version**: 1.0.0 | **Ratified**: [YYYY-MM-DD] | **Last Amended**: [YYYY-MM-DD]
+**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]

@@ -7,11 +7,11 @@
 ## Summary
 
 This feature delivers a production-grade Base Governance Suite for Spec Kit by creating three canonical, platform-agnostic Markdown templates in `.specify/templates/`:
-1. `constitution-template.md`: Replaces the default empty scaffold with the canonical Base Constitution v1.0.0, containing Core Principles I–VII and inline structured HTML comment delimiters for Optional Enhancement Modules A–D (including Module B's default clause replacement and Module D's nested sub-clause).
-2. `coding-standards-template.md`: A language-agnostic companion coding standards template operationalizing constitutional boundaries, concurrency, error disposition, and testing with standardized `[ALL_CAPS_IDENTIFIER]` project customization slots.
-3. `logging-standards-template.md`: A companion telemetry standards template incorporating the 5-tier severity taxonomy (`CRITICAL`, `WARN`, `INFO`, `DEBUG`, `TRACE`), ambient scope correlation, and sensitive data redaction rules.
+1. `constitution-template.md`: Replaces the default empty scaffold with the canonical Base Constitution v1.0.0, containing language-agnostic Core Principles I–VII (delegating logging severity level definitions to the logging standards document), inline structured HTML comment delimiters for Optional Enhancement Modules A–D (including Module B's default clause replacement and Module D's nested sub-clause), and footer placeholders `[CONSTITUTION_VERSION]`, `[RATIFICATION_DATE]`, and `[LAST_AMENDED_DATE]`.
+2. `coding-standards-template.md`: A lean, stack-specific companion coding standards template that translates constitutional principles into concrete project- and language-specific convention sections with standardized `[ALL_CAPS_IDENTIFIER]` slots, without repeating constitutional prose or embedding optional module hooks.
+3. `logging-standards-template.md`: A companion telemetry standards template incorporating the severity taxonomy (`CRITICAL`, `WARN`, `INFO`, `DEBUG`, and optional `TRACE`), ambient scope correlation, and sensitive data redaction rules.
 
-All templates are pure static Markdown files with zero runtime script dependencies, usable across all operating systems (Windows, macOS, Linux), and integrate seamlessly with `.specify/scripts/bash/resolve-template.sh` at Priority 4 (Core templates) where Bash is available.
+All templates are pure static Markdown files with zero runtime script dependencies, no repository test suites (`tests/`) or test scripts (`scripts/`), usable across all operating systems (Windows, macOS, Linux), and integrate seamlessly with `.specify/scripts/bash/resolve-template.sh` at Priority 4 (Core templates) where Bash is available.
 
 ---
 
@@ -23,7 +23,7 @@ All templates are pure static Markdown files with zero runtime script dependenci
 
 **Storage**: Flat markdown files located in `.specify/templates/`
 
-**Testing**: Static file and markdown structure inspection (verifying presence, headings, optional module delimiters, and placeholder token format without requiring POSIX/Bash runtimes), plus optional verification via `resolve-template.sh` documented in `specs/001-base-governance-templates/quickstart.md`.
+**Testing**: Direct static file and markdown structure inspection (no standalone test suites in `tests/` or test scripts in `scripts/`).
 
 **Target Platform**: Platform-agnostic (Linux, macOS, Windows)
 
@@ -33,12 +33,16 @@ All templates are pure static Markdown files with zero runtime script dependenci
 
 **Constraints**:
 - Pure platform-agnostic Markdown files requiring zero script or shell dependencies.
+- No standalone test suite (`tests/`) or helper test scripts (`scripts/`) in the repository root.
 - Template names must strictly match `[a-z0-9-]+` for resolver compatibility (`constitution-template.md`, `coding-standards-template.md`, `logging-standards-template.md`).
-- Customizable slots must strictly use `[ALL_CAPS_IDENTIFIER]` or `[YYYY-MM-DD]` syntax.
-- Optional Enhancement Modules A–D must use non-destructive, machine-parseable HTML comment delimiters.
+- Customizable slots must strictly use `[ALL_CAPS_IDENTIFIER]` syntax.
+- Optional Enhancement Modules A–D must use non-destructive, machine-parseable HTML comment delimiters exclusively in `constitution-template.md`.
+- `constitution-template.md` must remain language-agnostic (free of C#/.NET-specific identifiers in normative rules) and delegate log severity definitions to the logging standards doc.
+- `coding-standards-template.md` must be a lean project/language convention template that does not duplicate constitutional prose or include `OPEN-QUESTION` rules.
+- `logging-standards-template.md` must mark `TRACE` and `TRACE Entry & Exit Rules` as optional.
 - No modifications to existing bash scripts in `.specify/scripts/bash/`.
 
-**Scale/Scope**: 3 markdown template files (~200 to ~350 lines each) installed in `.specify/templates/`.
+**Scale/Scope**: 3 markdown template files installed in `.specify/templates/` (zero files in `tests/` or `scripts/`).
 
 ---
 

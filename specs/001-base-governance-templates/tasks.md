@@ -175,6 +175,15 @@ Developer C: T015-T019 on .specify/templates/logging-standards-template.md (US3)
 ## Notes
 
 - All tasks strictly follow `- [ ] [TaskID] [P?] [Story?] Description with file path`.
-- Every placeholder token strictly matches `[ALL_CAPS_IDENTIFIER]` or `[YYYY-MM-DD]` per contract.
-- Optional modules strictly follow HTML comment delimiter contracts from `contracts/optional-module-delimiters.md`.
+- Every placeholder token strictly matches `[ALL_CAPS_IDENTIFIER]` per contract.
+- Optional modules strictly follow HTML comment delimiter contracts from `contracts/optional-module-delimiters.md` and appear exclusively in `constitution-template.md`.
 - No bash scripts in `.specify/scripts/bash/` are modified; templates resolve automatically at Priority 4.
+
+---
+
+## Phase 7: Convergence
+
+- [X] T023 Remove unrequested `tests/` and `scripts/` directories to maintain zero test-suite/script overhead per FR-001 and SC-001 (`unrequested`)
+- [X] T024 Update `.specify/templates/constitution-template.md` to remove C#/.NET-specific identifiers from normative rules, delegate log severity definitions in Principle VII to `logging-standards.md`, and use `[CONSTITUTION_VERSION]`, `[RATIFICATION_DATE]`, and `[LAST_AMENDED_DATE]` in the footer per FR-002 and SC-002 (`contradicts`)
+- [X] T025 Refactor `.specify/templates/coding-standards-template.md` into a lean, stack-specific convention template without duplicated constitutional prose or `OPEN-QUESTION` rules, adding all required customization slots per FR-005 and FR-006 (`contradicts`)
+- [X] T026 Update `.specify/templates/logging-standards-template.md` to mark `TRACE` and `TRACE Entry & Exit Rules` as optional per FR-007 (`partial`)

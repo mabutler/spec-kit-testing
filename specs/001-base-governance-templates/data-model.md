@@ -41,8 +41,12 @@ classDiagram
 
     class CodingStandardsTemplate {
         +ConstitutionalAuthorityLink authority_link
-        +List~UniversalCodingRule~ universal_rules
-        +ProjectConventionsSection project_conventions
+        +LanguageToolchainSection language_toolchain
+        +ArchitectureBoundariesSection architecture_boundaries
+        +ErrorHandlingIdiomsSection error_handling_idioms
+        +StateConcurrencyIdiomsSection state_concurrency_idioms
+        +TestingConventionsSection testing_conventions
+        +NamingStyleSection naming_style
     }
 
     class LoggingStandardsTemplate {
@@ -120,10 +124,10 @@ Represents the supreme governance template for a repository.
   - `quality_gates`: Spec Kit workflow rules, pre-PR verification commands with `[ACCEPTANCE_GATE_COMMANDS]`, PR size (~500 LOC), and merge authority.
   - `recorded_deviations`: Table or list template requiring: Principle violated, Ratifying authority, Rationale, Compensating control, and Gap link.
   - `governance`: Document hierarchy (linking companion standards), 6-tier Precedence Order, Amendment & Versioning rules.
-  - `footer`: Standard metadata footer: `**Version**: 1.0.0 | **Ratified**: [YYYY-MM-DD] | **Last Amended**: [YYYY-MM-DD]`.
+  - `footer`: Standard metadata footer: `**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]`.
 
 ### 2. `OptionalEnhancementModule`
-A modular rule block embedded inline within `constitution-template.md` enclosed by machine-parseable comment delimiters.
+A modular rule block embedded inline within `constitution-template.md` enclosed by machine-parseable comment delimiters. Optional module HTML comment delimiters (`OPTIONAL-MODULE`) are used exclusively in `constitution-template.md`.
 
 - **Fields**:
   - `module_id`: String enum `{"MODULE-A", "MODULE-B", "MODULE-C", "MODULE-D"}`.
@@ -162,22 +166,20 @@ A baseline rule block inside a principle that can be replaced by an optional enh
   - `content`: Baseline text of the Plan Justification & Skip Allowlist rule with 5 skip exemptions.
 
 ### 5. `CodingStandardsTemplate`
-Operationalizes the Constitution into concrete, language-agnostic daily engineering conventions.
+Operationalizes the Constitution into concrete, project- and language-specific daily engineering conventions without repeating constitutional prose or embedding optional module hooks.
 
 - **File Path**: `.specify/templates/coding-standards-template.md`
 - **Resolution Identifier**: `coding-standards-template`
 - **Fields**:
-  - `authority_link`: Explicit reference declaring that `constitution.md` takes precedence.
-  - `universal_rules`:
-    - *Boundary Isolation*: Domain logic strictly isolated from wire types and I/O; enforced at compile time.
-    - *Two-Tier Error Handling*: Recoverable errors returned as explicit typed results; defects halt/restart immediately; catch blocks require explicit disposition.
-    - *Concurrency & Immutable Snapshots*: Lock discipline (no callbacks/I/O under lock), side-effects queued, state exposed exclusively via immutable snapshots (`record` / `record struct`).
-    - *Disambiguated Identifiers*: Pair-passed IDs must use distinct value types (`readonly record struct`).
-    - *Bounded Inputs & Resource Protection*: Explicit ceiling validation before allocation, streaming for large payloads, cancellation tokens on I/O.
-    - *Verify-Before-Destroy*: Destructive operations guarded by pre-flight checks and explicit confirmation.
-    - *Hostile Boundary & Unit Testing*: Encapsulation preserved (no visibility widening for tests), time injected, deterministic execution, hostile-input coverage.
-    - *Code Hygiene & Comments*: Zero warnings, present-tense "why" comments, no history narration, pointer-only tags for open questions (`// OPEN-QUESTION: OQ-XXX`).
-  - `project_conventions`: Clearly delineated sections for language, build tooling, linters, naming conventions, error types, and test runners containing `[ALL_CAPS_IDENTIFIER]` placeholders with non-binding exemplary commentary (e.g., standard .NET conventions).
+  - `authority_link`: Explicit reference declaring that `.specify/memory/constitution.md` takes precedence and is not duplicated here.
+  - `project_convention_sections`:
+    - *Language, Runtime & Toolchain*: `[PRIMARY_LANGUAGE_AND_RUNTIME]`, `[BUILD_AND_LINTER_COMMANDS]`, `[DEPENDENCY_AND_LOCKFILE_CONVENTIONS]` (operationalizing Principles V & VII).
+    - *Architecture, Module Layout & Compile-Time Boundaries*: `[PROJECT_STRUCTURE_CONVENTIONS]`, `[BOUNDARY_ENFORCEMENT_MECHANISM]` (operationalizing Principle IV).
+    - *Error Handling & Failure Idioms*: `[ERROR_RESULT_TYPES]`, `[DEFECT_INVARIANT_MECHANISM]` (operationalizing Principle II; inline references link/point to the canonical `[ERROR_RESULT_TYPES]` slot rather than duplicating placeholders).
+    - *State, Concurrency & Identifier Idioms*: `[IMMUTABLE_SNAPSHOT_AND_ID_CONVENTIONS]` (operationalizing Principle IV).
+    - *Testing Framework & Conventions*: `[TEST_FRAMEWORK_CONVENTIONS]` (operationalizing Principle III).
+    - *Naming, Formatting & Code Style*: `[NAMING_CONVENTIONS]` (operationalizing Principle VII).
+  - Contains no hardcoded `OPEN-QUESTION` rules (which belong exclusively to `MODULE-A` in `constitution-template.md`) and no `OPTIONAL-MODULE` comment blocks.
 
 ### 6. `LoggingStandardsTemplate`
 Operationalizes Constitutional Principles II and VII into concrete observability and telemetry standards.
@@ -191,17 +193,17 @@ Operationalizes Constitutional Principles II and VII into concrete observability
     - `WARN`: Recoverable boundary rejection or failed-but-continuing operation worth monitoring; never hidden in `DEBUG`.
     - `INFO`: Significant lifecycle milestones reading like an audit trail; states outcome, not diagnostic data. Significant actions log both attempt and result. Infrequent startup/shutdown in verbose layers logs at `INFO`.
     - `DEBUG`: Application's interpretation of state and diagnostic reasoning prior to a milestone; "engineer's working notes"; never leaks into `INFO`.
-    - `TRACE`: Mechanical entry/exit on every function and return path. Complex objects use `ToString()` or dedicated cheap helpers. External library calls do not emit `TRACE`.
+    - `TRACE (Optional)`: When enabled for a project, mechanical entry/exit on every function and return path. Complex objects use `ToString()` or dedicated cheap helpers. External library calls do not emit `TRACE`.
   - `correlation_policy`: Ambient scope propagation (`session_id`, `event_id`); call-site parameter passing or manual logging forbidden.
   - `redaction_policy`: Strict prohibition of passwords, tokens, API keys, full credit cards, SSNs, government IDs, and raw PII. Permitted internal IDs: GUIDs, database IDs, usernames.
   - `performance_policy`: Guard expensive log arguments with level checks; sample or aggregate sustained high-frequency events (>100/sec).
   - `testing_rule`: Unit tests strictly prohibited from asserting on log text or operator display strings.
-  - `project_telemetry`: Delineated sections for logging framework, sinks/transports, redaction mechanism, and retention policy containing `[ALL_CAPS_IDENTIFIER]` placeholders.
+  - `project_telemetry`: Delineated sections for logging framework, sinks/transports, correlation schema, redaction mechanism, and retention policy containing `[ALL_CAPS_IDENTIFIER]` placeholders.
 
 ### 7. `TemplatePlaceholder`
 Standardized placeholder tokens requiring substitution when a project initializes its governance documents.
 
-- **Syntax Rule**: Token format must strictly match `\[[A-Z0-9_]+\]` or `\[YYYY-MM-DD\]`.
+- **Syntax Rule**: Token format must strictly match `\[[A-Z0-9_]+\]`.
 - **Fields**: `token`, `target_template`, `category`, `description`, `example_value`, `mandatory_at_initialization`.
 
 ---

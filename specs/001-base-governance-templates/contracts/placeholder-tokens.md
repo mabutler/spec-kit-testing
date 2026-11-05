@@ -13,8 +13,6 @@ This contract catalogues all customizable placeholder tokens across the three go
 ## 1. Syntax & Detection Rules
 
 - **Standard Token Pattern**: `^\[[A-Z0-9_]+\]$`
-- **Date Token Pattern**: `^\[YYYY-MM-DD\]$`
-- **Version Token Pattern**: `^\[CONSTITUTION_VERSION\]$` (canonical template initializes to `1.0.0`)
 - **Validation Rule**: Unsubstituted tokens in initialized or ratified files in `.specify/memory/` are flagged as incomplete governance initialization.
 
 ---
@@ -30,8 +28,9 @@ This contract catalogues all customizable placeholder tokens across the three go
 | `[SECONDARY_SOURCE]` | Authority | Yes | Ranks second in the Authority Hierarchy. | `Architecture Docs in docs/ or Verified Simulator` |
 | `[TERTIARY_SOURCE]` | Authority | Yes | Ranks third in the Authority Hierarchy. | `Legacy Implementation in src/legacy/` |
 | `[ACCEPTANCE_GATE_COMMANDS]` | Workflow | Yes | Local verification command(s) for live acceptance. | `./scripts/run-all-gates.sh` |
-| `[YYYY-MM-DD]` | Date | Yes | Ratification and Last Amended date stamps. | `2026-11-04` |
 | `[CONSTITUTION_VERSION]` | Version | Yes | Initial ratified version number. | `1.0.0` |
+| `[RATIFICATION_DATE]` | Date | Yes | Original ratification date (ISO `YYYY-MM-DD`). | `2026-11-04` |
+| `[LAST_AMENDED_DATE]` | Date | Yes | Most recent amendment date (ISO `YYYY-MM-DD`). | `2026-11-04` |
 
 ---
 
@@ -40,12 +39,16 @@ This contract catalogues all customizable placeholder tokens across the three go
 | Placeholder | Category | Required | Description | Example / Default Value |
 |-------------|----------|----------|-------------|-------------------------|
 | `[PROJECT_NAME]` | Identity | Yes | Name of the project or repository. | `AcmePlatform` |
-| `[PRIMARY_LANGUAGE_AND_RUNTIME]` | Runtime | Yes | Primary programming language(s) and runtime versions. | `C# 12 / .NET 8 LTS` or `TypeScript 5.4 / Node.js 20` |
-| `[BUILD_AND_LINTER_COMMANDS]` | Tooling | Yes | Build, format, and static analysis commands. | `dotnet build /warnaserror && dotnet format --verify-no-changes` |
-| `[PROJECT_STRUCTURE_CONVENTIONS]` | Layout | Yes | Package, folder, and layer organization rules. | `src/Domain, src/Application, src/Infrastructure` |
-| `[NAMING_CONVENTIONS]` | Style | Yes | Identifier naming conventions (casing, prefixes). | `PascalCase for types/methods, camelCase for params` |
-| `[ERROR_RESULT_TYPES]` | Architecture | Yes | Canonical typed error container / result types. | `Result<T, Error>` or `OneOf<T, Error>` |
-| `[TEST_FRAMEWORK_CONVENTIONS]` | Testing | Yes | Test framework, naming, and assertion conventions. | `xUnit with FluentAssertions; Method_Scenario_Expected outcome` |
+| `[PRIMARY_LANGUAGE_AND_RUNTIME]` | Runtime | Yes | Primary programming language(s) and runtime versions. | `C# 12 / .NET 8 LTS` or `TypeScript 5.4 / Node.js 20` or `Rust 1.78` |
+| `[BUILD_AND_LINTER_COMMANDS]` | Tooling | Yes | Build (zero-warning), formatter, and linter commands. | `cargo clippy -- -D warnings && cargo fmt --check` |
+| `[DEPENDENCY_AND_LOCKFILE_CONVENTIONS]` | Supply Chain | Yes | Central package version management and lockfile rules. | `Cargo.toml workspace dependencies + committed Cargo.lock` |
+| `[PROJECT_STRUCTURE_CONVENTIONS]` | Layout | Yes | Package, folder, and layer organization rules. | `src/domain, src/application, src/infrastructure` |
+| `[BOUNDARY_ENFORCEMENT_MECHANISM]` | Architecture | Yes | Compile-time boundary isolation and I/O seam mechanism. | `Separate crates/projects with strict dependency graph; port traits for I/O` |
+| `[ERROR_RESULT_TYPES]` | Architecture | Yes | Canonical typed error container / result types for rejected operations. | `Result<T, DomainError>` |
+| `[DEFECT_INVARIANT_MECHANISM]` | Architecture | Yes | Mechanism for halting/failing closed on broken internal state. | `panic! / Environment.FailFast / fatal invariant assertion` |
+| `[IMMUTABLE_SNAPSHOT_AND_ID_CONVENTIONS]` | State & Types | Yes | Idioms for immutable state snapshots and distinct identifier value types. | `Readonly records / frozen dataclasses; newtype / readonly record struct IDs` |
+| `[TEST_FRAMEWORK_CONVENTIONS]` | Testing | Yes | Test framework, time/randomness injection, and naming conventions. | `pytest / xUnit; Method_Scenario_ExpectedOutcome` |
+| `[NAMING_CONVENTIONS]` | Style | Yes | Identifier naming, file organization, and formatting conventions. | `PascalCase for types, camelCase/snake_case for functions and locals` |
 
 ---
 

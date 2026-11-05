@@ -124,65 +124,68 @@ Principles I–VII establish non-negotiable architectural, failure, testing, sta
 
 #### Findings
 1. **Coding Standards Template**:
-   - Must be language-agnostic while reflecting modern type-safe, contract-driven systems engineering.
-   - Must translate the 7 constitutional principles into concrete development rules: compile-time boundary enforcement, two-tier error handling (result types vs defect invariant crashes), snapshot isolation & concurrency lock safety, type-safe ID wrappers (`readonly record struct` style), bounded untrusted inputs, verify-before-destroy, and hostile-boundary unit testing.
-   - Must provide customizable slots for language/runtime, build/linter tooling, naming conventions, and test runners, with exemplary guidance provided via comments.
+   - Should NOT duplicate the universal prose rules already established in `constitution-template.md` (nor include the optional `OPEN-QUESTION` rule from Module A).
+   - Instead, `coding-standards-template.md` serves as the lean, language/stack-specific operational document that translates the 7 constitutional principles into concrete project idioms and toolchain slots:
+     - Language, Runtime & Toolchain (`[PRIMARY_LANGUAGE_AND_RUNTIME]`, `[BUILD_AND_LINTER_COMMANDS]`, `[DEPENDENCY_AND_LOCKFILE_CONVENTIONS]`)
+     - Architecture, Module Layout & Compile-Time Boundaries (`[PROJECT_STRUCTURE_CONVENTIONS]`, `[BOUNDARY_ENFORCEMENT_MECHANISM]`)
+     - Error Handling & Failure Idioms (`[ERROR_RESULT_TYPES]`, `[DEFECT_INVARIANT_MECHANISM]`)
+     - State, Concurrency & Identifier Idioms (`[IMMUTABLE_SNAPSHOT_AND_ID_CONVENTIONS]`)
+     - Testing Framework & Conventions (`[TEST_FRAMEWORK_CONVENTIONS]`)
+     - Naming, Formatting & Code Style (`[NAMING_CONVENTIONS]`).
 
 2. **Logging Standards Template**:
-   - Must incorporate the user-provided Software Logging Policy:
-     - 5-Tier Severity Taxonomy (`CRITICAL`, `WARN`, `INFO`, `DEBUG`, `TRACE`) mapped directly to the Two-Tier Failure Model.
+   - The Constitution (Principle VII) delegates severity level definitions to `logging-standards.md` rather than defining tiers inline.
+   - `logging-standards-template.md` incorporates the user-provided Software Logging Policy with 4 core tiers (`CRITICAL`, `WARN`, `INFO`, `DEBUG`) and marks `TRACE` (and the `TRACE Entry & Exit Rules` section) as **Optional**:
      - `CRITICAL`: System restarting; requires restart reason and exception.
      - `WARN`: Boundary rejection or recoverable failure worth monitoring; never hidden in `DEBUG`.
      - `INFO`: Business/lifecycle outcome reading like an audit trail. Log both attempt and result for significant operations. Infrequent startup/shutdown in verbose layers logs at `INFO`.
      - `DEBUG`: Engineer's working notes and diagnostic reasoning; never leaks into `INFO`.
-     - `TRACE`: Mechanical entry/exit on every function and return path. Complex objects use `ToString()` or dedicated cheap property helpers. External library calls do not emit `TRACE`.
+     - `TRACE (Optional)`: When enabled for a project, mechanical entry/exit on every function and return path. Complex objects use `ToString()` or dedicated cheap property helpers. External library calls do not emit `TRACE`.
      - Ambient scope correlation: tokens (`session_id`, `event_id`) read automatically from execution context, never passed as parameters or logged at call sites.
      - Prohibited sensitive data: Passwords, tokens, API keys, full credit cards, SSNs, government IDs, raw PII strictly forbidden; internal IDs (GUIDs, usernames) permitted.
      - Performance: Guard expensive log arguments; high-frequency events (>100/sec) sampled/aggregated.
      - Testing rule: Unit tests MUST NOT assert on log message text.
-   - Must provide customizable slots for logging framework, sinks, redaction mechanism, and retention policy.
+   - Provides customizable slots for logging framework, sinks, correlation schema, redaction mechanism, and retention policy.
 
 #### Decision
-Structure both companion templates to begin with an explicit Constitutional Authority Header affirming that the Constitution has ultimate precedence, followed by universal non-negotiable rules, and concluded with clearly marked project-specific customization sections.
+Keep `constitution-template.md` strictly language-agnostic (universal "What & Why" plus Optional Modules A–D), make `coding-standards-template.md` a lean stack-specific operational template ("How" in this repo's language/toolchain without repeating constitutional prose), and make `logging-standards-template.md` the authoritative definition of log severity levels (with `TRACE` marked optional).
 
 #### Rationale
-Maintains a single source of truth: the constitution remains sovereign, while companion documents provide operational clarity without creating competing rules.
+Eliminates duplication between `constitution.md` and `coding-standards.md`, prevents C#/.NET specifics from leaking into universal constitutional principles, and gives each governance document a distinct, non-overlapping responsibility.
 
 ---
 
 ### 4. Placeholder Token Standardization
 
 #### Context & Problem
-Customizable slots must be easily recognized by humans and detectable by validation scripts or Phase 2 agent workflows.
+Customizable slots must be easily recognized by humans and detectable by Phase 2 agent workflows.
 
 #### Findings
-Inconsistent placeholders (e.g., `<PROJECT_NAME>`, `{project_name}`, `TODO: name`, `[PROJECT_NAME]`) cause regex failures and leave un-substituted markers in initialized projects.
+Inconsistent placeholders (e.g., `<PROJECT_NAME>`, `{project_name}`, `TODO: name`, or duplicate `[YYYY-MM-DD]` tokens for different date fields) cause ambiguity during automated initialization.
 
 #### Decision
-All customizable slots across all three templates MUST use the strict format:
-- `[ALL_CAPS_IDENTIFIER]` (e.g., `[PROJECT_NAME]`, `[PRIMARY_LANGUAGE_AND_RUNTIME]`, `[LOGGING_FRAMEWORK]`)
-- Dates use `[YYYY-MM-DD]`
-- Version numbers use `[CONSTITUTION_VERSION]` with `1.0.0` as the canonical base default.
+All customizable slots across all three templates MUST use unique, descriptive `[ALL_CAPS_IDENTIFIER]` tokens:
+- e.g., `[PROJECT_NAME]`, `[PRIMARY_LANGUAGE_AND_RUNTIME]`, `[LOGGING_FRAMEWORK]`
+- Governance footer tokens in `constitution-template.md` use `[CONSTITUTION_VERSION]`, `[RATIFICATION_DATE]`, and `[LAST_AMENDED_DATE]` (matching `.agents/skills/speckit-constitution/SKILL.md`).
 
-A comprehensive inventory of placeholders will be documented in `contracts/placeholder-tokens.md` and validated in `quickstart.md`.
+A comprehensive inventory of placeholders is documented in `contracts/placeholder-tokens.md`.
 
 ---
 
-### 5. Cross-Platform Static Templates with Zero Script Dependencies
+### 5. Cross-Platform Static Templates with Zero Script or Test Suite Dependencies
 
 #### Context & Problem
-Governance templates must be usable across diverse developer operating systems (Windows, macOS, Linux) without requiring POSIX shell runtimes, Bash 4+, or auxiliary script tooling. We must establish how templates are stored, consumed, and verified without making script execution a prerequisite.
+Governance templates must be usable across diverse developer operating systems (Windows, macOS, Linux) without requiring POSIX shell runtimes, Bash 4+, or auxiliary test suites (`tests/`, `scripts/`).
 
 #### Findings
-- Spec Kit workflows and agent environments can run on native Windows environments (PowerShell / cmd / VS Code) where Bash is not installed or requires WSL/Git Bash.
-- Markdown files stored in `.specify/templates/` are plain static text. They require no build step, compilation, or script execution to be consumed or inspected.
-- Automated tests or verification steps can be expressed as direct file and markdown structure inspection (checking for section headings, comment delimiters, and token patterns) using any available runtime (Python, Node.js, PowerShell, or POSIX shell), or via manual/editor inspection.
+- Markdown files stored in `.specify/templates/` are plain static text. They require no build step, compilation, test runner, or script execution to be consumed or inspected.
+- Maintaining a Python unit test suite (`tests/test_governance_templates.py`) and bash test script (`scripts/test-templates.sh`) that regex-match headings in static Markdown files adds unnecessary repository clutter (`__pycache__`, extra maintenance) without real value.
 
 #### Decision
-Treat all three governance templates as pure, platform-agnostic static Markdown files in `.specify/templates/` with zero runtime script dependencies. Eliminate all mandatory Bash/POSIX runtime prerequisites for template consumption, and provide validation scenarios in `quickstart.md` that can be verified either via direct static file inspection or optionally via the Spec Kit Bash resolver where available.
+Treat all three governance templates as pure, platform-agnostic static Markdown files in `.specify/templates/` with zero runtime script dependencies and zero repository test suites (`tests/` or `scripts/`).
 
 #### Rationale
-Guarantees maximum portability, zero deployment friction, and universal editor/tooling compatibility across all operating systems.
+Keeps the repository completely clean—delivering only the static Markdown templates in `.specify/templates/`.
 
 #### Alternatives Considered
 - *Requiring a Node.js or Python CLI runner*: Rejected as an unnecessary dependency; Markdown templates do not require a runtime layer.
