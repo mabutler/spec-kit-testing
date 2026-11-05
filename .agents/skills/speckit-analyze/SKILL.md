@@ -94,7 +94,6 @@ Load only the minimal necessary context from each artifact:
 - Data Model references
 - Phases
 - Technical constraints
-- Documentation Impact classification (`USER_FACING` target files or `INTERNAL_ONLY` rationale)
 
 **From tasks.md:**
 
@@ -140,15 +139,13 @@ Focus on high-signal findings. Limit to 50 findings total; aggregate remainder i
 #### D. Constitution Alignment
 
 - Any requirement, plan element, or task conflicting with a `constitution.md` MUST principle or a linked normative rule in `coding-standards.md` / `logging-standards.md`
-- Missing mandated sections or quality gates from constitution (such as Principle III test justification)
-- Principle VII Human-Facing Documentation Gate: If the feature or user stories introduce or modify user-visible CLI commands, agent skills, public APIs, configuration options, or workflows, `plan.md` MUST classify `Documentation Impact` as `USER_FACING` and `tasks.md` MUST include at least one task targeting the affected human-facing documentation (`README.md`, user guides). If `plan.md` declares `INTERNAL_ONLY`, verify that the exemption rationale is non-empty and does not contradict user-visible requirements in `spec.md`; flag missing classification, contradicting `INTERNAL_ONLY` claims on user-visible features, or citing ephemeral `specs/NNN-*/` paths or `FR-XXX`/`SC-XXX` identifiers in permanent human-facing docs as `CRITICAL`.
+- Missing mandated sections, testing gates, or living documentation updates required by `constitution.md`
 
 #### E. Coverage Gaps
 
 - Requirements with zero associated tasks
 - Tasks with no mapped requirement/story
 - Success Criteria requiring buildable work (performance, security, availability) not reflected in tasks
-- Missing documentation tasks: Features classified as `USER_FACING` lacking mapped human-facing documentation tasks (e.g., in `README.md` or user guides) in `tasks.md` (flag as `HIGH`)
 
 #### F. Inconsistency
 

@@ -58,20 +58,14 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Check environment variable `SPECIFY_FEATURE_DIRECTORY` or read `.specify/feature.json` for `feature_directory`.
    - Derive absolute paths: `FEATURE_DIR`, `FEATURE_SPEC` (`${FEATURE_DIR}/spec.md`), `IMPL_PLAN` (`${FEATURE_DIR}/plan.md`), and `BRANCH` (basename of `FEATURE_DIR`).
    - Validate prerequisite: `feature_directory` MUST NOT be empty and `${FEATURE_DIR}/spec.md` MUST exist on disk.
-   - Resolve `plan-template` across the 4-tier hierarchy:
-     1. Tier 1 (Overrides): `.specify/templates/overrides/plan-template.md`
-     2. Tier 2 (Presets): `.specify/presets/<preset-id>/templates/plan-template.md` (per `.specify/presets/.registry`, respecting composition strategies)
-     3. Tier 3 (Extensions): `.specify/extensions/<ext-id>/templates/plan-template.md` (per `.specify/extensions/.registry`)
-     4. Tier 4 (Core Fallback): `.specify/templates/plan-template.md`
-     - Invariant: If a requested template is not found in any of the 4 tiers, the agent MUST fail closed and emit an error per Principle II.
+   - Resolve `plan-template`: Read from `.specify/templates/overrides/`, `.specify/presets/`, `.specify/extensions/`, or fallback to `.specify/templates/plan-template.md`. If not found, fail closed per Principle II.
    - If `${FEATURE_DIR}/plan.md` does not exist, write the resolved `plan-template` to `${FEATURE_DIR}/plan.md`.
 
-2. **Load context**: Read FEATURE_SPEC and the project governance suite in `.specify/memory/`: `.specify/memory/constitution.md`, plus `.specify/memory/coding-standards.md` and `.specify/memory/logging-standards.md` (if present). If companion standards are missing in a legacy repo, proceed with `constitution.md` without crashing (noting that running `/speckit-constitution` will initialize companion standards). Load IMPL_PLAN template (already copied).
+2. **Load context**: Read FEATURE_SPEC and `.specify/memory/constitution.md` (and `.specify/memory/coding-standards.md` if present for stack/architecture conventions). Load IMPL_PLAN template (already copied).
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
-   - Fill Technical Context (use `.specify/memory/coding-standards.md` and `.specify/memory/logging-standards.md` when present to populate stack-specific defaults for language/runtime, build/linter commands, test runner, and logging framework; mark unknowns as "NEEDS CLARIFICATION")
-   - Populate `**Documentation Impact**` in Technical Context by classifying the feature as either `USER_FACING` (naming the exact human-facing documentation files such as `README.md` or user guides to create/update per `.specify/memory/coding-standards.md` `[HUMAN_DOCS_CONVENTIONS]` or baseline Principle VII) or `INTERNAL_ONLY` (providing a concrete rationale why no user-visible commands, skills, APIs, configuration options, or workflows change). If `.specify/memory/coding-standards.md` predates Phase 6 and lacks a Human-Facing Documentation section, fall back gracefully to the baseline Principle VII rule.
-   - Fill Constitution Check section from `.specify/memory/constitution.md` (including Principle III test justifications / skip allowlist exemptions and Principle VII human-facing documentation alignment) and check alignment against `.specify/memory/coding-standards.md` and `.specify/memory/logging-standards.md`
+   - Fill Technical Context (use `.specify/memory/coding-standards.md` when present to populate stack-specific defaults; mark unknowns as "NEEDS CLARIFICATION")
+   - Fill Constitution Check section from `.specify/memory/constitution.md` (ensuring designs comply with project principles, testing rules, and documentation policies)
    - Evaluate gates (ERROR if violations unjustified)
    - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
    - Phase 1: Generate data-model.md, contracts/, quickstart.md

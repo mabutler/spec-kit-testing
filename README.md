@@ -69,14 +69,14 @@ Maintained with 100% byte parity across Google Antigravity ([`.agents/skills/`](
 | **`/speckit-bootstrap`** | **New** | Verifies file integrity via SHA-256 manifests, detects configuration drift, and performs non-destructive upgrades across `.specify/`, `.agents/`, and `.claude/`. |
 | **`/speckit-roadmap`** | **New** | Authors, visualizes, audits, and syncs project milestones in [`ROADMAP.md`](ROADMAP.md) directly into feature specifications. |
 | **`/speckit-constitution`** | Modified | Generates and syncs the constitution alongside companion `coding-standards.md` and `logging-standards.md`, supporting optional modules (`MODULE-A` through `MODULE-DOCS`). |
-| **`/speckit-specify`** | Modified | Adds 4-tier template resolution, automatic sequential feature numbering, worktree isolation, and integration with roadmap phases (`--next` / `Phase N`). |
-| **`/speckit-plan`** | Modified | Adds 4-tier template resolution, dynamic checks against active constitutional rules, and the human documentation gate (`USER_FACING` vs `INTERNAL_ONLY`). |
-| **`/speckit-tasks`** | Modified | Enforces dynamic constitutional testing rules and automatically adds documentation tasks when changes affect user-facing docs. |
-| **`/speckit-analyze`** | Modified | Adds automated self-healing passes (up to 2 iterations) to align `plan.md` and `tasks.md` with `spec.md`, plus documentation gate checks. |
-| **`/speckit-implement`** | Modified | Dynamically obeys the project's constitutional verification rules and enforces pre-execution hooks. |
+| **`/speckit-specify`** | Modified | Adds concise template resolution, automatic sequential feature numbering, worktree isolation, roadmap integration, and selective governance loading. |
+| **`/speckit-plan`** | Modified | Adds concise template resolution and constitutional governance checks, loading companion coding standards lazily for architecture and stack context. |
+| **`/speckit-tasks`** | Modified | Adds concise template resolution, defers testing rules to active constitution, and includes documentation tasks for user-facing changes. |
+| **`/speckit-analyze`** | Modified | Adds automated self-healing passes (up to 2 iterations) to align `plan.md` and `tasks.md` with `spec.md`, enforcing constitutional quality gates. |
+| **`/speckit-implement`** | Modified | Enforces full companion coding and logging standards at implementation time, respecting pre-execution hooks and constitutional verification rules. |
 | **`/speckit-clarify`** | Modified | Integrated into the multi-agent orchestrator pipeline with an automated Clarify Gate that pauses for input when ambiguities exist. |
 | **`/speckit-converge`** | Modified | Evaluates as-built code against specifications and tasks, automatically appending unbuilt work back into `tasks.md`. |
-| **`/speckit-checklist`** | Modified | Adds 4-tier template resolution to generate custom requirements-quality checklists. |
+| **`/speckit-checklist`** | Modified | Adds concise template resolution to generate custom requirements-quality checklists. |
 
 ---
 

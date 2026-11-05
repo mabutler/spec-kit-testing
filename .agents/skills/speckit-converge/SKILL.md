@@ -144,7 +144,7 @@ Create an internal model (do not echo raw artifacts):
   search for the concepts each requirement describes, derive the set of source files and
   components in scope for assessment. Bound the assessment to these — do **not** infer
   scope beyond what the artifacts define.
-- **Documentation obligations**: Include `Documentation Impact` (`USER_FACING` target files vs. `INTERNAL_ONLY` exemption) and Principle VII human-facing documentation obligations in the intent inventory.
+- **Documentation obligations**: Include documentation obligations required by `constitution.md` Principle VII in the intent inventory.
 
 ### 4. Assess the Codebase and Classify Findings
 
@@ -154,7 +154,7 @@ the spec, plan, tasks, and constitution; for corrective task chains, assess the 
 behavior, not superseded implementation details. Check both unmet obligations and
 implementation that contradicts, exceeds, or falls outside the stated intent.
 
-When `Documentation Impact` is `USER_FACING`, inspect target human-facing documentation files (`README.md`, user guides) on disk and emit a `Finding` (`missing`, `partial`, or `contradicts`) if required documentation updates are absent, out of sync with implemented behavior, have broken relative links, or reference ephemeral `specs/NNN-*/` paths or `FR-XXX`/`SC-XXX` identifiers. When `INTERNAL_ONLY` (and consistent with `spec.md`), require zero `README.md` edits and emit no false-positive documentation gap findings.
+Verify that any documentation changes required by `constitution.md` have been completed cleanly alongside the implementation.
 
 For each item in the intent inventory, inspect the current code in scope and produce a
 `Finding` only where there is a gap. Classify every finding by **gap type**:

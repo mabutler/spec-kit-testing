@@ -79,10 +79,8 @@ If `.specify/memory/constitution.md` is missing or unreadable, the orchestrator 
 `"CRITICAL: .specify/memory/constitution.md is missing or unreadable. Ratify project constitution first using /speckit-constitution."`
 Halt execution immediately.
 
-**Dynamic Principle III Policy Extraction**:
-The orchestrator dynamically inspects the active Principle III clause in `.specify/memory/constitution.md` and passes the extracted verification policy `{ACTIVE_PRINCIPLE_III_POLICY_FROM_CONSTITUTION}` directly into subagent execution directives:
-- If the active constitution ratifies static verification with no automated tests, subagents must enforce static verification and prohibit generating automated test files, test directories, or test tasks.
-- If the active constitution ratifies automated testing or test coverage gates (`MODULE-B`), subagents must enforce the required test suites, determinism rules, and coverage thresholds defined in `.specify/memory/constitution.md` and `.specify/memory/coding-standards.md`.
+**Governance Policy Adherence**:
+Subagents dynamically inspect and obey `.specify/memory/constitution.md` (and companion standards where applicable), adhering to the ratified testing and verification rules without hardcoded assumptions.
 
 ### 4. Agent Profile Hierarchy & Session Model Ceiling
 
@@ -140,8 +138,8 @@ When dispatching subagents, the prompt MUST include:
    - .specify/feature.json: {"feature_directory": "{REL_FEATURE_DIR}"}
    - SPECIFY_FEATURE_NO_PERSIST=1 (for all stages after initial specify)
 3. Governance Suite Adherence (Non-Negotiable):
-   - Enforce .specify/memory/constitution.md (specifically Principle III: {ACTIVE_PRINCIPLE_III_POLICY_FROM_CONSTITUTION}).
-   - Enforce .specify/memory/coding-standards.md and .specify/memory/logging-standards.md.
+   - Enforce .specify/memory/constitution.md (including testing and verification rules).
+   - Enforce .specify/memory/coding-standards.md and .specify/memory/logging-standards.md (where applicable).
 4. Hook Anti-Recursion Guard:
    - ORCHESTRATOR_CHILD=true: Do NOT invoke /speckit-orchestrate from any hooks.
 5. Required Completion Report:

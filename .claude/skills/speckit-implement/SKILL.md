@@ -159,7 +159,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **Follow TDD approach**: Execute test tasks before their corresponding implementation tasks
    - **File-based coordination**: Tasks affecting the same files must run sequentially
    - **Validation checkpoints**: Verify each phase completion before proceeding
-   - **Enforce governance conventions**: Ensure all written code, error handling, tests, and log statements comply with `.specify/memory/constitution.md`, `.specify/memory/coding-standards.md`, and `.specify/memory/logging-standards.md`. When `Documentation Impact` is `USER_FACING`, verify that all planned human-facing documentation files (`README.md`, user guides) have been created or updated to match actual as-built behavior, contain valid relative links, and include zero references to ephemeral `specs/NNN-*/` directories or `FR-XXX`/`SC-XXX` identifiers per Principle VII and Development Workflow & Quality Gates (exempting `INTERNAL_ONLY` changes).
+   - **Enforce governance conventions**: Ensure all written code, error handling, tests, documentation, and log statements comply with `.specify/memory/constitution.md`, `.specify/memory/coding-standards.md`, and `.specify/memory/logging-standards.md`.
 
 7. Implementation execution rules:
    - **Setup first**: Initialize project structure, dependencies, configuration
@@ -181,7 +181,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Check that implemented features match the original specification
    - Validate that tests pass and coverage meets requirements
    - Confirm the implementation follows the technical plan and complies with `.specify/memory/constitution.md`, `.specify/memory/coding-standards.md`, and `.specify/memory/logging-standards.md` (including running configured build/linter/acceptance gate commands)
-   - When `Documentation Impact` is `USER_FACING`, verify human-facing documentation updates match as-built behavior, contain valid relative links, and have zero citations of ephemeral `specs/NNN-*/` folders or `FR-XXX`/`SC-XXX` identifiers (whereas `INTERNAL_ONLY` changes incur zero artificial documentation updates)
+   - Confirm documentation updates match as-built behavior per constitution Principle VII.
 
 Note: This command assumes a complete task breakdown exists in tasks.md. If tasks are incomplete or missing, suggest running `/speckit-tasks` first to regenerate the task list.
 
