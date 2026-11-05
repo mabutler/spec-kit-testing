@@ -290,7 +290,7 @@ Parse `$ARGUMENTS` to determine the execution mode:
 
 In strict compliance with `.specify/memory/constitution.md`, `.specify/memory/coding-standards.md`, and `.specify/memory/logging-standards.md`:
 - **100% Script-Free**: This skill contains ZERO calls or references to shell automation scripts. All logic runs natively through agent file inspection and git CLI commands.
-- **Principle III (Zero Automated Tests)**: Verification is purely static (`--check`, `--status`, schema validation). No test files or suites are created.
+- **Principle III (Constitutional Verification Gates)**: Adhere to the verification gates ratified in `.specify/memory/constitution.md`. For roadmap operations, verification is performed via static `--check`, `--status`, and schema validation gates (`RM-LINT-001`..`006`).
 - **Structured Log Levels**:
   - `INFO`: Milestones (template resolved, status audit complete, roadmap synchronized, specify handoff).
   - `WARN`: Recoverable boundary rejections, unfulfilled prerequisites, schema lint failures, status drift.

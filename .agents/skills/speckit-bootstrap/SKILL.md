@@ -28,8 +28,9 @@ The following paths belong strictly to the user and the project's living governa
 - `.specify/memory/logging-standards.md`
 - `.specify/templates/overrides/**`
 - `.specify/feature.json` and `specs/**`
-- `.agents/agents/*.local.md` and custom non-canonical agent profiles
-- Custom skills in `.agents/skills/`
+- `.agents/agents/*.local.md`, `.claude/agents/*.local.md`, and custom non-canonical agent profiles
+- `.claude/settings.local.json`
+- Custom skills in `.agents/skills/` and `.claude/skills/`
 
 **Invariant**: The bootstrapper MUST "never overwrite or delete under any circumstances, even when --force / -Force is passed".
 
@@ -82,15 +83,19 @@ Triggered when executed without `--upgrade` or `--check`:
      - Presets: `.specify/presets/.registry` and packages (`.specify/presets/base-governance/`)
      - Extensions: `.specify/extensions/.registry` and packages (`.specify/extensions/speckit-orchestrator/`)
      - Workflows: `.specify/workflows/workflow-registry.json`, `.specify/workflows/speckit/workflow.yml`
-     - Integrations: `.specify/integrations/speckit.manifest.json`, `agy.manifest.json`, `speckit-bootstrap.manifest.json`
+     - Integrations: `.specify/integrations/speckit.manifest.json`, `agy.manifest.json`, `claude.manifest.json`, `speckit-bootstrap.manifest.json`
      - Configuration: `.specify/extensions.yml`, `.specify/init-options.json`, `.specify/integration.json`, `.specify/.gitignore`
-     - Role Profiles: `.agents/agents/speckit-reasoner.md`, `.agents/agents/speckit-executor.md`
-     - Skills: All 12 skills in `.agents/skills/` (including `speckit-roadmap`)
+     - Role Profiles: `.agents/agents/speckit-reasoner.md`, `.agents/agents/speckit-executor.md`, `.claude/agents/speckit-reasoner.md`, `.claude/agents/speckit-executor.md`
+     - Skills: All 12 skills in `.agents/skills/` and `.claude/skills/` (speckit-analyze, speckit-bootstrap, speckit-checklist, speckit-clarify, speckit-constitution, speckit-converge, speckit-implement, speckit-orchestrate, speckit-plan, speckit-roadmap, speckit-specify, speckit-tasks)
+     - Parity: Verify 100% byte-for-byte parity across all 14 canonical files between `.agents/` and `.claude/`.
 2. **Obsolete Script Detection & Removal**:
    - Check if legacy `scripts/` directory exists under `.specify`.
    - If found, delete the legacy directory and purge any obsolete script entries from `.specify/integrations/speckit.manifest.json`.
 3. **Configuration & Gitignore Idempotent Merge**:
-   - Ensure `<target-repo>/.gitignore` exists and contains `.agents/agents/*.local.md`.
+   - Ensure `<target-repo>/.gitignore` exists and contains:
+     - `.agents/agents/*.local.md`
+     - `.claude/agents/*.local.md`
+     - `.claude/settings.local.json`
    - Ensure `<target-repo>/.specify/extensions.yml` contains `speckit.orchestrate` under `hooks.after_specify`:
      ```yaml
      schema_version: "1.0"
@@ -106,8 +111,8 @@ Triggered when executed without `--upgrade` or `--check`:
      Preserve all existing custom hooks during merge.
 4. **Manifest Synchronization**:
    - Calculate SHA-256 digests (`sha256:<hex>`) and byte sizes for all managed files.
-   - Generate or update `.specify/integrations/speckit-bootstrap.manifest.json` conforming to `manifest-schema.json`.
-   - Ensure `speckit.manifest.json` and `agy.manifest.json` are synchronized with 0 script entries.
+   - Generate or update `.specify/integrations/speckit-bootstrap.manifest.json` tracking all 53 managed files across `.agents/` (14), `.claude/` (14), and `.specify/` (25) conforming to `manifest-schema.json`.
+   - Ensure `speckit.manifest.json`, `agy.manifest.json`, and `claude.manifest.json` are synchronized with 0 script entries.
 5. **Governance State Check**:
    - Inspect `.specify/memory/` for `constitution.md`, `coding-standards.md`, and `logging-standards.md`.
    - If missing, report status and recommend running `/speckit-constitution`.

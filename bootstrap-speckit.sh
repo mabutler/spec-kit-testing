@@ -48,7 +48,8 @@ for req in ".specify/templates/spec-template.md" ".specify/templates/plan-templa
            ".specify/templates/tasks-template.md" ".specify/templates/checklist-template.md" \
            ".specify/templates/constitution-template.md" ".specify/templates/coding-standards-template.md" \
            ".specify/templates/logging-standards-template.md" ".specify/templates/roadmap-template.md" \
-           ".specify/extensions.yml" ".agents/agents/speckit-reasoner.md" ".agents/agents/speckit-executor.md"; do
+           ".specify/extensions.yml" ".agents/agents/speckit-reasoner.md" ".agents/agents/speckit-executor.md" \
+           ".claude/agents/speckit-reasoner.md" ".claude/agents/speckit-executor.md"; do
   if [ ! -f "$SRC_ROOT/$req" ]; then
     echo "CRITICAL: Source bundle is missing required assets: $req" >&2
     exit 1
@@ -67,6 +68,7 @@ COPIED=0
 SKIPPED=0
 SPECIFY_COUNT=0
 AGENTS_COUNT=0
+CLAUDE_COUNT=0
 
 copy_file() {
   local rel="$1"
@@ -82,42 +84,41 @@ copy_file() {
     case "$rel" in
       .specify/*) SPECIFY_COUNT=$((SPECIFY_COUNT + 1)) ;;
       .agents/*) AGENTS_COUNT=$((AGENTS_COUNT + 1)) ;;
+      .claude/*) CLAUDE_COUNT=$((CLAUDE_COUNT + 1)) ;;
     esac
   fi
 }
 
-# Copy managed files from .specify and .agents
-# Protected User-State Boundary (PRESERVE_USER_STATE):
-# Never clobbers .specify/memory/*, overrides, feature.json, local profiles, specs/*, or root ROADMAP.md
+# Copy managed files from .specify, .agents, and .claude
+# Protected User-State Boundary (PRESERVE_USER_STATE)
 while IFS= read -r rel; do
   [ -z "$rel" ] && continue
   copy_file "$rel"
-done < <(cd "$SRC_ROOT" && find .specify .agents -type f \
+done < <(cd "$SRC_ROOT" && find .specify .agents .claude -type f \
   ! -path ".specify/memory/*" \
   ! -path ".specify/templates/overrides/*" \
   ! -path ".specify/feature.json" \
   ! -path ".agents/agents/*.local.md" \
-  ! -path ".agents/agents/speckit-*.local.md" \
+  ! -path ".claude/agents/*.local.md" \
+  ! -path ".claude/settings.local.json" \
   | sort)
 
-# Maintain .gitignore
+# Maintain .gitignore for local overrides
 GITIGNORE="$TARGET_DIR/.gitignore"
-PATTERN=".agents/agents/*.local.md"
-if [ ! -f "$GITIGNORE" ]; then
-  echo "$PATTERN" > "$GITIGNORE"
-  echo "[INFO] Created .gitignore with $PATTERN"
-elif ! grep -qF "$PATTERN" "$GITIGNORE"; then
-  echo "" >> "$GITIGNORE"
-  echo "# Spec Kit local agent profiles" >> "$GITIGNORE"
-  echo "$PATTERN" >> "$GITIGNORE"
-  echo "[INFO] Updated .gitignore with $PATTERN"
-else
-  echo "[INFO] Verified .gitignore contains $PATTERN"
-fi
+touch "$GITIGNORE"
+for pat in ".agents/agents/*.local.md" ".claude/agents/*.local.md" ".claude/settings.local.json"; do
+  if ! grep -qF "$pat" "$GITIGNORE"; then
+    echo "$pat" >> "$GITIGNORE"
+    echo "[INFO] Added $pat to .gitignore"
+  else
+    echo "[INFO] Verified .gitignore contains $pat"
+  fi
+done
 
 echo "[INFO] Verified source bundle integrity"
 echo "[INFO] Seeded .specify/ configuration and templates ($SPECIFY_COUNT files)"
 echo "[INFO] Seeded .agents/ skills and agent definitions ($AGENTS_COUNT files)"
+echo "[INFO] Seeded .claude/ skills and agent definitions ($CLAUDE_COUNT files)"
 
 echo ""
 echo "Files Copied: $COPIED"

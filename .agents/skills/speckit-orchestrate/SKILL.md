@@ -67,26 +67,36 @@ Resolve authoritative feature context:
      Halt execution immediately.
 4. Pass `SPECIFY_FEATURE_NO_PERSIST=1` to all downstream child stage invocations after feature directory creation.
 
-### 3. Governance Suite Adherence & Principle III Enforcement
+### 3. Governance Suite Adherence & Dynamic Principle III Policy Resolution
 
-Load and enforce project governance suite:
+Read and inspect project governance suite before dispatching subagents:
 - `.specify/memory/constitution.md`
-- `.specify/memory/coding-standards.md`
-- `.specify/memory/logging-standards.md`
+- `.specify/memory/coding-standards.md` (if present)
+- `.specify/memory/logging-standards.md` (if present)
 
-**NON-NEGOTIABLE PRINCIPLE III ENFORCEMENT**:
-- Automated test generation is disabled repository-wide.
-- Subagents MUST NOT generate unit test files, integration test files, test directories, or test tasks.
-- All quality verification relies exclusively on static syntax inspection, schema validation, and declarative gates.
+**Fail-Closed Governance Check (Principle II)**:
+If `.specify/memory/constitution.md` is missing or unreadable, the orchestrator MUST **FAIL CLOSED** (`FAILED_CLOSED`). Log `CRITICAL` diagnostic:
+`"CRITICAL: .specify/memory/constitution.md is missing or unreadable. Ratify project constitution first using /speckit-constitution."`
+Halt execution immediately.
+
+**Dynamic Principle III Policy Extraction**:
+The orchestrator dynamically inspects the active Principle III clause in `.specify/memory/constitution.md` and passes the extracted verification policy `{ACTIVE_PRINCIPLE_III_POLICY_FROM_CONSTITUTION}` directly into subagent execution directives:
+- If the active constitution ratifies static verification with no automated tests, subagents must enforce static verification and prohibit generating automated test files, test directories, or test tasks.
+- If the active constitution ratifies automated testing or test coverage gates (`MODULE-B`), subagents must enforce the required test suites, determinism rules, and coverage thresholds defined in `.specify/memory/constitution.md` and `.specify/memory/coding-standards.md`.
 
 ### 4. Agent Profile Hierarchy & Session Model Ceiling
 
+#### Dual-Client Resolution Hierarchy
+Determine the active client root directory `<client>`:
+- If running within Claude Code (or if `.agents/` is absent and `.claude/` exists), resolve from `.claude/`.
+- Otherwise, resolve from `.agents/`.
+
 Resolve subagent definitions using the 5-level override hierarchy:
 1. **Runtime Flag**: `--model=<tier>` or `--agent=<name>` in `$ARGUMENTS`.
-2. **Stage Local Override**: `.agents/agents/speckit-<stage>.local.md` (gitignored).
-3. **Stage Tracked Override**: `.agents/agents/speckit-<stage>.md`.
-4. **Role Local Override**: `.agents/agents/speckit-<role>.local.md` (gitignored).
-5. **Role Tracked Default**: `.agents/agents/speckit-<role>.md` (`speckit-reasoner.md` for `reasoning`, `speckit-executor.md` for `execution`).
+2. **Stage Local Override**: `<client>/agents/speckit-<stage>.local.md` (gitignored).
+3. **Stage Tracked Override**: `<client>/agents/speckit-<stage>.md`.
+4. **Role Local Override**: `<client>/agents/speckit-<role>.local.md` (gitignored).
+5. **Role Tracked Default**: `<client>/agents/speckit-<role>.md` (`speckit-reasoner.md` for `reasoning`, `speckit-executor.md` for `execution`).
 
 #### Role Capability Tiers
 - **High-Reasoning (`speckit-reasoner`)**: `clarify`, `plan`, `analyze`, `converge`, self-heal remediation, and convergence retry escalations.
@@ -105,16 +115,22 @@ Resolve subagent definitions using the 5-level override hierarchy:
 
 ### 5. Subagent Registration & Dispatch Protocol
 
-Register subagent personas using `define_subagent` if not already defined:
-- `Name`: `"speckit-reasoner"` or `"speckit-executor"` (or stage-specific name).
-- `Description`: Extracted from YAML frontmatter `description`.
-- `SystemPrompt`: Extracted from markdown body of agent profile.
-- `EnableWriteTools`: `true` for write stages; `false` for read-only `analyze`.
-- `EnableSubagentTools`: `false` by default (only `true` for `implement` if coordinating disjoint parallel workers).
-- `Workspace`: `"inherit"`.
+#### Dual-Client Subagent Dispatch
+- **Google Antigravity**:
+  - Register subagent personas using `define_subagent` if not already defined:
+    - `Name`: `"speckit-reasoner"` or `"speckit-executor"` (or stage-specific name).
+    - `Description`: Extracted from YAML frontmatter `description`.
+    - `SystemPrompt`: Extracted from markdown body of agent profile.
+    - `EnableWriteTools`: `true` for write stages; `false` for read-only `analyze`.
+    - `EnableSubagentTools`: `false` by default (only `true` for `implement` if coordinating disjoint parallel workers).
+    - `Workspace`: `"inherit"`.
+  - Dispatch via `invoke_subagent`.
+- **Claude Code**:
+  - Dispatch via `Task` tool (using `subagent_type: speckit-reasoner` or `speckit-executor`, with `model: opus` / `sonnet` / `inherit`).
+  - For read-only stages (such as `analyze`), prompt instructs the agent not to modify files.
 
 #### Mandatory Subagent Prompt Payload
-When calling `invoke_subagent`, the prompt MUST include:
+When dispatching subagents, the prompt MUST include:
 ```markdown
 ## Stage Execution Directive: {STAGE_NAME}
 
@@ -124,7 +140,7 @@ When calling `invoke_subagent`, the prompt MUST include:
    - .specify/feature.json: {"feature_directory": "{REL_FEATURE_DIR}"}
    - SPECIFY_FEATURE_NO_PERSIST=1 (for all stages after initial specify)
 3. Governance Suite Adherence (Non-Negotiable):
-   - Enforce .specify/memory/constitution.md (specifically Principle III: ZERO automated test files, test directories, or test tasks).
+   - Enforce .specify/memory/constitution.md (specifically Principle III: {ACTIVE_PRINCIPLE_III_POLICY_FROM_CONSTITUTION}).
    - Enforce .specify/memory/coding-standards.md and .specify/memory/logging-standards.md.
 4. Hook Anti-Recursion Guard:
    - ORCHESTRATOR_CHILD=true: Do NOT invoke /speckit-orchestrate from any hooks.
@@ -138,11 +154,11 @@ When calling `invoke_subagent`, the prompt MUST include:
 
 ### 6. Pipeline Execution State Machine
 
-Execute stages sequentially under single-writer serialization:
+Execute stages sequentially under single-writer serialization (with skills dynamically resolved from `<client>/skills/<skill-name>/SKILL.md`):
 
 #### Stage 1: Specify
 - **Agent**: `speckit-executor` (`execution`)
-- **Skill**: `.agents/skills/speckit-specify/SKILL.md`
+- **Skill**: `<client>/skills/speckit-specify/SKILL.md`
 - **Condition**: Run if `spec.md` is missing, or `--from=specify` is specified.
 - **Check**: Verify `spec.md` and `checklists/requirements.md` created.
 - **Anti-Recursion**: Pass `ORCHESTRATOR_CHILD=true` so `hooks.after_specify` does not re-trigger orchestrator.
@@ -156,7 +172,7 @@ Execute stages sequentially under single-writer serialization:
   - Check if `--clarify` flag was set.
 - **Gate Evaluation**:
   - If `[NEEDS CLARIFICATION]` > 0, checklist has unchecked items, or `--clarify` is true:
-    - Run `speckit-clarify` subagent to generate targeted questions.
+    - Run `speckit-clarify` subagent (`<client>/skills/speckit-clarify/SKILL.md`) to generate targeted questions.
     - If ambiguities require human input: **PAUSE FOR USER** (`PAUSED_FOR_USER`).
       Present clarification questions and stop without proceeding to `plan`.
   - If 0 ambiguities and checklist PASS: mark Clarify Gate `PASSED`.
@@ -164,21 +180,21 @@ Execute stages sequentially under single-writer serialization:
 
 #### Stage 3: Plan
 - **Agent**: `speckit-reasoner` (`reasoning`)
-- **Skill**: `.agents/skills/speckit-plan/SKILL.md`
+- **Skill**: `<client>/skills/speckit-plan/SKILL.md`
 - **Condition**: Run if `plan.md` is missing/empty, or `--from=plan` (or earlier) was specified. Skip if `plan.md` already exists and is non-empty.
 - **Verification**: Verify `plan.md`, `research.md`, `data-model.md`, `quickstart.md`, and contracts exist.
 - Check `--until=plan`: if true, halt cleanly.
 
 #### Stage 4: Tasks
 - **Agent**: `speckit-executor` (`execution`)
-- **Skill**: `.agents/skills/speckit-tasks/SKILL.md`
+- **Skill**: `<client>/skills/speckit-tasks/SKILL.md`
 - **Condition**: Run if `tasks.md` is missing/empty, or `--from=tasks` (or earlier) was specified. Skip if `tasks.md` already exists and is non-empty.
 - **Verification**: Verify `tasks.md` contains dependency-ordered phases and tasks.
 - Check `--until=tasks`: if true, halt cleanly.
 
 #### Stage 5: Analyze & Self-Heal Gate
 - **Agent**: `speckit-reasoner` (`reasoning`)
-- **Skill**: `.agents/skills/speckit-analyze/SKILL.md`
+- **Skill**: `<client>/skills/speckit-analyze/SKILL.md`
 - **Execution**: Run `speckit-analyze` to perform non-destructive consistency check across `spec.md`, `plan.md`, and `tasks.md`.
 - **Gate Evaluation**:
   - If `CRITICAL > 0` or `HIGH > 0`:
@@ -202,7 +218,7 @@ Execute stages sequentially under single-writer serialization:
 
 #### Stage 6: Implement
 - **Agent**: `speckit-executor` (`execution` for pass 1) / `speckit-reasoner` (`reasoning` for retries 2..3)
-- **Skill**: `.agents/skills/speckit-implement/SKILL.md`
+- **Skill**: `<client>/skills/speckit-implement/SKILL.md`
 - **Safe Concurrency & Single Coordinator**:
   - Sequential tasks execute in dependency order.
   - Parallel tasks marked `[P]` within the same phase are validated for mutually disjoint file paths before concurrent dispatch.
@@ -211,7 +227,7 @@ Execute stages sequentially under single-writer serialization:
 
 #### Stage 7: Converge
 - **Agent**: `speckit-reasoner` (`reasoning`)
-- **Skill**: `.agents/skills/speckit-converge/SKILL.md`
+- **Skill**: `<client>/skills/speckit-converge/SKILL.md`
 - **Execution & Retry Loop**:
   - Run `speckit-converge` to inspect repository against `spec.md`, `plan.md`, and `tasks.md`.
   - If outcome == `converged`:

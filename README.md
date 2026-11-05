@@ -40,7 +40,12 @@ Tier 4: Core Fallback  (.specify/templates/<template-name>.md)
 │   ├── presets/                   # Curated template presets (Tier 2)
 │   ├── extensions/                # Registered extensions (Tier 3)
 │   └── integrations/              # SHA-256 integrity manifests
-├── .agents/
+├── .agents/                       # Google Antigravity discovery tree
+│   ├── agents/                    # Subagent persona profiles
+│   │   ├── speckit-reasoner.md    # High-reasoning cognitive subagent profile
+│   │   └── speckit-executor.md    # High-velocity execution subagent profile
+│   └── skills/                    # Specialized agent skill implementations (12 skills)
+├── .claude/                       # Claude Code discovery tree (byte-identical mirror of .agents/)
 │   ├── agents/                    # Subagent persona profiles
 │   │   ├── speckit-reasoner.md    # High-reasoning cognitive subagent profile
 │   │   └── speckit-executor.md    # High-velocity execution subagent profile
@@ -96,14 +101,16 @@ All feature plans (`plan.md`) must classify changes before implementation:
 
 ### Subagent Role Profiles
 
-Multi-agent workflows dispatched by `/speckit-orchestrate` utilize two context-isolated subagent profiles:
+Multi-agent workflows dispatched by `/speckit-orchestrate` utilize two context-isolated subagent profiles discovered automatically across Google Antigravity (`.agents/agents/`) and Claude Code (`.claude/agents/`):
 
-- [`.agents/agents/speckit-reasoner.md`](.agents/agents/speckit-reasoner.md): High-reasoning persona specialized for architecture planning, requirements clarification, drift analysis, convergence verification, and retry escalations (`clarify`, `plan`, `analyze`, `converge`).
-- [`.agents/agents/speckit-executor.md`](.agents/agents/speckit-executor.md): Standard/fast execution persona specialized for rapid specification capture, task decomposition, and code implementation (`specify`, `tasks`, `implement`).
+- [`.agents/agents/speckit-reasoner.md`](.agents/agents/speckit-reasoner.md) (mirrored to [`.claude/agents/speckit-reasoner.md`](.claude/agents/speckit-reasoner.md)): High-reasoning persona specialized for architecture planning, requirements clarification, drift analysis, convergence verification, and retry escalations (`clarify`, `plan`, `analyze`, `converge`).
+- [`.agents/agents/speckit-executor.md`](.agents/agents/speckit-executor.md) (mirrored to [`.claude/agents/speckit-executor.md`](.claude/agents/speckit-executor.md)): Standard/fast execution persona specialized for rapid specification capture, task decomposition, and code implementation (`specify`, `tasks`, `implement`).
+
+Subagent personas dynamically inspect and obey the verification, testing, and coverage requirements ratified in the target project's `.specify/memory/constitution.md` and `.specify/memory/coding-standards.md` rather than enforcing hardcoded assumptions.
 
 ### Spec Kit Skills
 
-The toolkit includes 12 specialized agent skills under [`.agents/skills/`](.agents/skills/):
+The toolkit includes 12 specialized agent skills maintained with 100% byte-identical parity across both [`.agents/skills/`](.agents/skills/) (Google Antigravity) and [`.claude/skills/`](.claude/skills/) (Claude Code):
 
 | Skill | Directory | Lifecycle Phase | Description |
 |---|---|---|---|
@@ -124,7 +131,7 @@ The toolkit includes 12 specialized agent skills under [`.agents/skills/`](.agen
 
 ## Getting Started & Portable Bootstrapping
 
-The toolkit can be seeded into any target repository using native shell scripts with zero external dependencies.
+The toolkit can be seeded into any target repository using native shell scripts with zero external dependencies. The bootstrapper copies all 53 managed assets across `.specify/`, `.agents/`, and `.claude/` while preserving existing user state and automatically maintaining `.gitignore` patterns for local overrides (`.agents/agents/*.local.md`, `.claude/agents/*.local.md`, `.claude/settings.local.json`).
 
 ### POSIX Environments (Linux / macOS / WSL)
 
@@ -175,9 +182,28 @@ Once seeded into a target project:
 
 The repository enforces automated verification gates to ensure configuration integrity:
 
-- **POSIX Bootstrapper Syntax**:
+- **POSIX Bootstrapper Syntax & Line Budget**:
   ```bash
   bash -n bootstrap-speckit.sh
+  ```
+- **Dual-Client Byte-for-Byte Parity**:
+  ```bash
+  python3 -c '
+  import filecmp, os, sys
+  canonical = [
+      "agents/speckit-executor.md", "agents/speckit-reasoner.md",
+      "skills/speckit-analyze/SKILL.md", "skills/speckit-bootstrap/SKILL.md",
+      "skills/speckit-checklist/SKILL.md", "skills/speckit-clarify/SKILL.md",
+      "skills/speckit-constitution/SKILL.md", "skills/speckit-converge/SKILL.md",
+      "skills/speckit-implement/SKILL.md", "skills/speckit-orchestrate/SKILL.md",
+      "skills/speckit-plan/SKILL.md", "skills/speckit-roadmap/SKILL.md",
+      "skills/speckit-specify/SKILL.md", "skills/speckit-tasks/SKILL.md"
+  ]
+  for rel in canonical:
+      a, c = os.path.join(".agents", rel), os.path.join(".claude", rel)
+      if not filecmp.cmp(a, c, shallow=False): sys.exit(f"Parity mismatch: {a} != {c}")
+  print("All 14 client files match byte-for-byte across .agents/ and .claude/.")
+  '
   ```
 - **Template & Preset Parity**:
   ```bash
@@ -185,18 +211,24 @@ The repository enforces automated verification gates to ensure configuration int
   cmp -s .specify/templates/coding-standards-template.md .specify/presets/base-governance/templates/coding-standards-template.md
   ```
 - **Manifest Integrity & SHA-256 Validation**:
-  Integration manifests in `.specify/integrations/` track the cryptographic SHA-256 digests and file sizes of all managed assets:
+  Integration manifests in `.specify/integrations/` track cryptographic SHA-256 digests and file sizes across all managed assets:
   ```bash
   python3 -c '
   import hashlib, json, os, sys
-  for p in [".specify/integrations/speckit.manifest.json", ".specify/integrations/agy.manifest.json", ".specify/integrations/speckit-bootstrap.manifest.json"]:
+  manifests = [
+      ".specify/integrations/speckit.manifest.json",
+      ".specify/integrations/agy.manifest.json",
+      ".specify/integrations/claude.manifest.json",
+      ".specify/integrations/speckit-bootstrap.manifest.json"
+  ]
+  for p in manifests:
       d = json.load(open(p))
       for f, m in d["files"].items():
           raw = open(f, "rb").read()
           dig = hashlib.sha256(raw).hexdigest()
           exp = m if isinstance(m, str) else m["digest"].replace("sha256:", "")
           if dig != exp: sys.exit(f"Digest mismatch in {p} for {f}")
-  print("Manifests valid.")
+  print("All 4 manifests valid with 0 drift.")
   '
   ```
 - **Markdown Hygiene**:

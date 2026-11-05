@@ -17,6 +17,7 @@ This roadmap organizes planned strategic initiatives into sequential, self-conta
 | **Phase 4** | **Portable Project Bootstrapper** | `COMPLETED` | Phase 1, Phase 2, Phase 3 | `specs/004-portable-project-bootstrapper/` | Package Phases 1–3 so they can be rapidly installed and initialized in any new or existing repository. | Preset/extension bundle + bootstrap installer script/command |
 | **Phase 5** | **Roadmap Management (`speckit-roadmap`)** | `COMPLETED` | Phase 1, Phase 2, Phase 3, Phase 4 | `specs/005-roadmap-management/` | Establish a dedicated workflow, template, and agent skill to author, visualize, and incrementally maintain project-level roadmaps that feed into Spec Kit feature specifications. | `roadmap-template.md`, `.agents/skills/speckit-roadmap/SKILL.md`, sync/status tracking CLI scripts |
 | **Phase 6** | **Human-Facing Documentation Standards & Governance** | `COMPLETED` | Phase 1, Phase 2, Phase 4 | `specs/006-human-docs-governance/` | Introduce explicit constitutional principles, template standards, and quality gates for authoring and maintaining human-readable documentation (`README.md`, user guides, quickstarts) alongside code changes. | Updated `constitution-template.md`, amended project `.specify/memory/constitution.md`, documentation gates in Spec Kit skills |
+| **Phase 7** | **Claude Discovery Compatibility & Constitutional Test Decoupling** | `COMPLETED` | Phase 3, Phase 4, Phase 6 | `specs/007-claude-discovery-governance-decoupling/` | Establish dual-environment discovery for Claude Code (`.claude/`) alongside Google Antigravity (`.agents/`), update bootstrapper and manifest suites, and decouple hardcoded test prohibitions from agent profiles and skills to dynamically obey project constitutions. | Dual `.claude/` skills and agent profiles, updated `bootstrap-speckit.{sh,ps1}`, `claude.manifest.json`, refactored agent personas and orchestrator skills |
 
 ---
 
@@ -212,3 +213,42 @@ The current project constitution (`.specify/memory/constitution.md`) and base co
 - **Principle Placement vs. Companion Standard**: Whether documentation standards live directly as an expanded clause in Constitution Principle VII (*Code Hygiene, Ubiquitous Language & Living Documentation*) or as a dedicated section in `coding-standards.md` (or both).
 - **Enforcement Scope**: Distinguishing internal-only changes (refactors, bug fixes, testless harness adjustments) from user-facing changes to avoid requiring unnecessary `README.md` edits on purely internal changes.
 - **Template Reusability**: Ensuring the documentation module in `constitution-template.md` is configurable for different project types (libraries, CLI tools, web services, frameworks).
+
+---
+
+## Phase 7: Claude Discovery Compatibility & Constitutional Test Decoupling
+
+### Metadata
+- **Status**: `COMPLETED`
+- **Prerequisites**: Phase 3, Phase 4, Phase 6
+- **Spec Directory**: `specs/007-claude-discovery-governance-decoupling/`
+
+### Problem Statement
+User feedback from developer environments running Claude Code indicates two critical architectural issues:
+1. **Tool & Skill Discovery Failure in Claude Code**: Spec Kit agent skills and subagent profiles are currently installed exclusively under `.agents/` (`.agents/skills/` and `.agents/agents/`), designed for Google Antigravity. Claude Code discovers custom skills in `.claude/skills/<skill-name>/SKILL.md` (and subagents in `.claude/agents/<agent-name>.md`). Because `.claude/` is missing, developers running Claude Code cannot discover or execute Spec Kit skills or subagents.
+2. **Hardcoded Constitutional Prohibitions in Reusable Agent & Skill Definitions**: Agent profiles (`speckit-executor.md`, `speckit-reasoner.md`) and workflow skills (`speckit-orchestrate/SKILL.md`, `speckit-roadmap/SKILL.md`) currently hardcode a prohibition against writing automated tests directly into their system prompts and workflow bodies (e.g., `"Principle III: ZERO automated test files, test directories, or test tasks"`). This violates the core design principle that agents and skills must remain portable and reusable across projects: test policies must be read and enforced dynamically from `.specify/memory/constitution.md` (and companion standards), rather than hardcoded into agent definitions.
+
+### Architectural Fit in Spec Kit
+- **Dual-Environment Discovery & Mirroring**:
+  - Establish a mirrored `.claude/` structure (`.claude/skills/` and `.claude/agents/`) in the toolkit and repository.
+  - Update `bootstrap-speckit.sh` and `bootstrap-speckit.ps1` to seed both `.agents/` and `.claude/` (with appropriate `.gitignore` protection for local overrides).
+  - Introduce `.specify/integrations/claude.manifest.json` and synchronize `speckit-bootstrap.manifest.json`.
+  - Update `/speckit-bootstrap` to verify both discovery locations.
+- **Dynamic Constitutional Deference for Principle III**:
+  - Refactor subagent profiles (`speckit-reasoner.md`, `speckit-executor.md`) to instruct agents to dynamically inspect and enforce `.specify/memory/constitution.md` for all verification and testing gates, removing hardcoded test prohibitions.
+  - Refactor `/speckit-orchestrate` to read the active constitution at runtime and pass project-specific verification directives dynamically.
+  - Refactor skills (`speckit-roadmap`, etc.) to reference constitutional verification gates generally.
+
+### Key Deliverables
+- Dual `.claude/skills/` (12 skills) and `.claude/agents/` (2 subagent profiles) asset trees with 100% byte-for-byte parity
+- Updated `bootstrap-speckit.sh` and `bootstrap-speckit.ps1` seeding dual client environments under 150 LOC
+- `.specify/integrations/claude.manifest.json` and synchronized `speckit-bootstrap.manifest.json` tracking 53 assets
+- Decoupled subagent profiles (`speckit-reasoner.md`, `speckit-executor.md`) dynamically deferring to project constitution
+- Refactored `speckit-orchestrate/SKILL.md` and `speckit-roadmap/SKILL.md` with dynamic governance resolution
+- Synchronized documentation in `README.md`
+
+### Key Design Decisions to Resolve During Spec
+- **Asset Synchronization Mechanism**: File mirroring vs symlinks (favoring file mirroring for reliable Windows/cross-platform git support).
+- **Client Targeting UX in Bootstrapper**: Defaulting to seeding both `.agents/` and `.claude/` while supporting optional `--client` flags.
+- **Dynamic Deference Protocol**: How orchestrator subagents read and interpret Principle III from `.specify/memory/constitution.md` at runtime without assuming zero tests or 100% tests.
+

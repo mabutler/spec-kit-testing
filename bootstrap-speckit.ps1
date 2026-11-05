@@ -54,7 +54,9 @@ $RequiredAssets = @(
     ".specify/templates/roadmap-template.md",
     ".specify/extensions.yml",
     ".agents/agents/speckit-reasoner.md",
-    ".agents/agents/speckit-executor.md"
+    ".agents/agents/speckit-executor.md",
+    ".claude/agents/speckit-reasoner.md",
+    ".claude/agents/speckit-executor.md"
 )
 
 foreach ($req in $RequiredAssets) {
@@ -75,12 +77,12 @@ $Copied = 0
 $Skipped = 0
 $SpecifyCount = 0
 $AgentsCount = 0
+$ClaudeCount = 0
 
 # Protected User-State Boundary (PRESERVE_USER_STATE):
-# Never clobbers .specify/memory/*, overrides, feature.json, local profiles, specs/*, or root ROADMAP.md
-$SourceFiles = Get-ChildItem -Path (Join-Path $ResolvedSrc ".specify"), (Join-Path $ResolvedSrc ".agents") -Recurse -File | Where-Object {
+$SourceFiles = Get-ChildItem -Path (Join-Path $ResolvedSrc ".specify"), (Join-Path $ResolvedSrc ".agents"), (Join-Path $ResolvedSrc ".claude") -Recurse -File | Where-Object {
     $rel = $_.FullName.Substring($ResolvedSrc.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar).Replace('\', '/')
-    -not ($rel.StartsWith(".specify/memory/") -or $rel.StartsWith(".specify/templates/overrides/") -or $rel -eq ".specify/feature.json" -or ($rel.StartsWith(".agents/agents/") -and $rel.EndsWith(".local.md")))
+    -not ($rel.StartsWith(".specify/memory/") -or $rel.StartsWith(".specify/templates/overrides/") -or $rel -eq ".specify/feature.json" -or ($rel.StartsWith(".agents/agents/") -and $rel.EndsWith(".local.md")) -or ($rel.StartsWith(".claude/agents/") -and $rel.EndsWith(".local.md")) -or $rel -eq ".claude/settings.local.json")
 }
 
 foreach ($file in $SourceFiles) {
@@ -98,27 +100,31 @@ foreach ($file in $SourceFiles) {
         $relNorm = $relPath.Replace('\', '/')
         if ($relNorm.StartsWith(".specify/")) { $SpecifyCount++ }
         elseif ($relNorm.StartsWith(".agents/")) { $AgentsCount++ }
+        elseif ($relNorm.StartsWith(".claude/")) { $ClaudeCount++ }
     }
 }
 
 $GitIgnore = Join-Path $TargetDir ".gitignore"
-$Pattern = ".agents/agents/*.local.md"
 if (-not (Test-Path -LiteralPath $GitIgnore)) {
-    Set-Content -LiteralPath $GitIgnore -Value $Pattern
-    Write-Host "[INFO] Created .gitignore with $Pattern"
-} else {
-    $content = Get-Content -LiteralPath $GitIgnore -Raw
-    if ($content -notmatch [regex]::Escape($Pattern)) {
-        Add-Content -LiteralPath $GitIgnore -Value "`n# Spec Kit local agent profiles`n$Pattern"
-        Write-Host "[INFO] Updated .gitignore with $Pattern"
+    New-Item -ItemType File -Path $GitIgnore -Force | Out-Null
+}
+$content = Get-Content -LiteralPath $GitIgnore -Raw -ErrorAction SilentlyContinue
+if (-not $content) { $content = "" }
+
+$Patterns = @(".agents/agents/*.local.md", ".claude/agents/*.local.md", ".claude/settings.local.json")
+foreach ($pat in $Patterns) {
+    if ($content -notmatch [regex]::Escape($pat)) {
+        Add-Content -LiteralPath $GitIgnore -Value $pat
+        Write-Host "[INFO] Added $pat to .gitignore"
     } else {
-        Write-Host "[INFO] Verified .gitignore contains $Pattern"
+        Write-Host "[INFO] Verified .gitignore contains $pat"
     }
 }
 
 Write-Host "[INFO] Verified source bundle integrity"
 Write-Host "[INFO] Seeded .specify/ configuration and templates ($SpecifyCount files)"
-Write-Host "[INFO] Seeded .agents/ skills and agent definitions ($AgentsCount files)`n"
+Write-Host "[INFO] Seeded .agents/ skills and agent definitions ($AgentsCount files)"
+Write-Host "[INFO] Seeded .claude/ skills and agent definitions ($ClaudeCount files)`n"
 
 Write-Host "Files Copied: $Copied"
 Write-Host "Files Skipped: $Skipped (existing)`n"

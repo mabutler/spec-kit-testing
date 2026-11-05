@@ -17,5 +17,7 @@ build/
 *.egg-info/
 .pytest_cache/
 
-# Spec Kit subagent local overrides
+# Spec Kit subagent local overrides and machine-local settings
 .agents/agents/*.local.md
+.claude/agents/*.local.md
+.claude/settings.local.json
