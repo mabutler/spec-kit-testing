@@ -3,8 +3,8 @@
   "version": "1.4.0",
   "installed_at": "2026-11-05T12:00:00+00:00",
   "files": {
-    ".claude/agents/speckit-executor.md": "e6cbc714f64029bea35959c36b2cdd1bce09cdf75a6278e471a24a39c4a8f432",
-    ".claude/agents/speckit-reasoner.md": "c009c97ca07722512be656d9d844470216ab7cd849fff0016840db7c72b7a9d5",
+    ".claude/agents/speckit-executor.md": "9e3d756e57649ee9c14e3bb982f1d15c1f23ec02586b7be8e6846698ec813530",
+    ".claude/agents/speckit-reasoner.md": "657f862b23e9d28fd190b3c7640d3e0040bb302053ccfc56d31cfb4977437f86",
     ".claude/skills/speckit-analyze/SKILL.md": "d20ec854f3af11af3f42d5bf0f54bc207162b3c539514203c4b7109fe1786bd5",
     ".claude/skills/speckit-bootstrap/SKILL.md": "a4736c7795828bb8b35f96fdf73db966962c08a8af2ec2e14aa3c45dc1048175",
     ".claude/skills/speckit-checklist/SKILL.md": "b30a06e381307428a809f71e0aed045a18f8414e97235f11ccaf3acd1be05bcc",

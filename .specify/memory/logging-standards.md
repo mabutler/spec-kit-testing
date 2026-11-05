@@ -4,7 +4,7 @@
 
 This document operationalizes the telemetry, logging, and observability principles established in the **Spec Kit Testing Constitution** into concrete operational standards.
 
-- **Authority Link**: Governed by the rules and principles defined in `.specify/memory/constitution.md`, specifically Principle II (*Two-Tier Failure Model & Fail Closed on Required State*) and Principle VII (*Code Hygiene, Ubiquitous Language & Safe Logging*).
+- **Authority Link**: Governed by the rules and principles defined in `.specify/memory/constitution.md`, specifically Principle II (*Explicit Error Handling & Fail-Closed State*) and Principle VII (*Code Standards, Consistent Terminology & Secure Logging*).
 - **Precedence Declaration**: The Constitution ranks highest in authority. In any conflict between this Logging Standards document and the Core Principles of the Constitution, the Constitution strictly prevails.
 - **Scope**: Applies to all agent skill workflows, command-line interfaces, scripts, and diagnostic output across this repository.
 
@@ -12,7 +12,7 @@ This document operationalizes the telemetry, logging, and observability principl
 
 ## Severity Taxonomy
 
-Telemetric event logging divides into four core severity levels mapped to the Two-Tier Failure Model, plus an optional fifth level (`TRACE`) for mechanical function tracing:
+Telemetric event logging divides into four core severity levels mapped to the explicit error handling architecture (rejected boundary operations vs. internal invariant failures), plus an optional fifth level (`TRACE`) for mechanical function tracing:
 
 - **CRITICAL** — System restarting or halting immediately. Fatal defect invariants, violated preconditions, unrecoverable programmer errors, or corrupted internal state. MUST include exception details and restart reason.
 - **WARN** — Recoverable operation rejection or failure where execution continues. Worth monitoring for patterns in production; declined or failed operations MUST NOT be hidden in DEBUG.

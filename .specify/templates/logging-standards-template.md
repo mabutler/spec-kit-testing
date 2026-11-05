@@ -15,7 +15,7 @@ Invariant: If a requested template is not found in any of the 4 tiers, the agent
 
 This document operationalizes the telemetry, logging, and observability principles established in the **[PROJECT_NAME] Constitution** into concrete operational standards.
 
-- **Authority Link**: Governed by the rules and principles defined in `.specify/memory/constitution.md` (or `constitution.md`), specifically Principle II (*Two-Tier Failure Model & Fail Closed on Required State*) and Principle VII (*Code Hygiene, Ubiquitous Language & Safe Logging*).
+- **Authority Link**: Governed by the rules and principles defined in `.specify/memory/constitution.md` (or `constitution.md`), specifically Principle II (*Explicit Error Handling & Fail-Closed State*) and Principle VII (*Code Standards, Consistent Terminology & Secure Logging*).
 - **Precedence Declaration**: The Constitution ranks highest in authority. In any conflict between this Logging Standards document and the Core Principles of the Constitution, the Constitution strictly prevails.
 - **Scope**: Applies to all production services, background workers, command-line interfaces, libraries, and diagnostic telemetry sinks across this repository.
 
@@ -23,7 +23,7 @@ This document operationalizes the telemetry, logging, and observability principl
 
 ## Severity Taxonomy
 
-Telemetric event logging divides into four core severity levels mapped to the Two-Tier Failure Model, plus an optional fifth level (`TRACE`) for mechanical function tracing:
+Telemetric event logging divides into four core severity levels mapped to the explicit error handling architecture (rejected boundary operations vs. internal invariant failures), plus an optional fifth level (`TRACE`) for mechanical function tracing:
 
 - **CRITICAL** — System restarting or halting immediately. Fatal defect invariants, violated preconditions, unrecoverable programmer errors, or corrupted internal state. MUST include exception details and restart reason.
 - **WARN** — Recoverable operation rejection or failure where execution continues. Worth monitoring for patterns in production; declined or failed operations MUST NOT be hidden in DEBUG.
@@ -99,20 +99,16 @@ This section specifies project-specific telemetry libraries, sinks, formats, and
 
 ### Logging Framework & Abstraction
 - **Framework**: [LOGGING_FRAMEWORK]
-  <!-- Example: Serilog with Microsoft.Extensions.Logging, or Winston, or log4rs -->
+  <!-- Example: Microsoft.Extensions.Logging / Serilog, or Winston / Pino, or tracing / env_logger -->
 
 ### Sinks, Destinations & Output Formats
-- **Sinks & Formats**: [LOG_SINKS_AND_FORMATS]
-  <!-- Example: Console (Compact JSON format) + OpenTelemetry Collector OTLP exporter -->
+- **Sinks & Formats**: [LOGGING_SINKS_AND_FORMATS]
+  <!-- Example: Console (JSON formatted), OpenTelemetry OTLP exporter, CloudWatch / Datadog sink -->
 
 ### Correlation Identifier Schema
-- **Correlation Schema**: [CORRELATION_ID_SCHEMA]
-  <!-- Example: W3C TraceContext traceparent, session_id (UUIDv4), event_id (monotonic int) -->
+- **Correlation Schema**: [CORRELATION_SCHEMA]
+  <!-- Example: TraceId (W3C TraceContext), RequestId (UUIDv4), CorrelationId passed via ambient async context -->
 
 ### Redaction & Sanitization Mechanism
-- **Redaction Engine**: [SENSITIVE_DATA_REDACTION_MECHANISM]
-  <!-- Example: Middleware redaction regex filter stripping Authorization headers and masking card digits -->
-
-### Retention & High-Frequency Sampling Policy
-- **Retention & Sampling**: [RETENTION_AND_SAMPLING_POLICY]
-  <!-- Example: Production DEBUG retained 7 days; sustained >100/sec events sampled at 5% -->
+- **Redaction Engine**: [REDACTION_ENGINE]
+  <!-- Example: Custom Serilog DestructuringPolicy, or Pino redact paths: ['req.headers.authorization', 'password', 'token'] -->

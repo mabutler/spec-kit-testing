@@ -5,13 +5,13 @@
   "source_commit": "HEAD",
   "files": {
     ".agents/agents/speckit-executor.md": {
-      "digest": "sha256:e6cbc714f64029bea35959c36b2cdd1bce09cdf75a6278e471a24a39c4a8f432",
-      "size_bytes": 3827,
+      "digest": "sha256:9e3d756e57649ee9c14e3bb982f1d15c1f23ec02586b7be8e6846698ec813530",
+      "size_bytes": 3923,
       "tier": "agent"
     },
     ".agents/agents/speckit-reasoner.md": {
-      "digest": "sha256:c009c97ca07722512be656d9d844470216ab7cd849fff0016840db7c72b7a9d5",
-      "size_bytes": 4166,
+      "digest": "sha256:657f862b23e9d28fd190b3c7640d3e0040bb302053ccfc56d31cfb4977437f86",
+      "size_bytes": 4262,
       "tier": "agent"
     },
     ".agents/skills/speckit-analyze/SKILL.md": {
@@ -75,13 +75,13 @@
       "tier": "skill"
     },
     ".claude/agents/speckit-executor.md": {
-      "digest": "sha256:e6cbc714f64029bea35959c36b2cdd1bce09cdf75a6278e471a24a39c4a8f432",
-      "size_bytes": 3827,
+      "digest": "sha256:9e3d756e57649ee9c14e3bb982f1d15c1f23ec02586b7be8e6846698ec813530",
+      "size_bytes": 3923,
       "tier": "agent"
     },
     ".claude/agents/speckit-reasoner.md": {
-      "digest": "sha256:c009c97ca07722512be656d9d844470216ab7cd849fff0016840db7c72b7a9d5",
-      "size_bytes": 4166,
+      "digest": "sha256:657f862b23e9d28fd190b3c7640d3e0040bb302053ccfc56d31cfb4977437f86",
+      "size_bytes": 4262,
       "tier": "agent"
     },
     ".claude/skills/speckit-analyze/SKILL.md": {
@@ -175,17 +175,17 @@
       "tier": "metadata"
     },
     ".specify/integrations/agy.manifest.json": {
-      "digest": "sha256:1d83f0cbc75b1f39ad10421732efa66f1e2c106042a888fd031efe2b99a74625",
+      "digest": "sha256:5eb38d7a1b9a419671144538f3b2db46c8c157cc3e6d40e44eec0fc12c60fb0d",
       "size_bytes": 1724,
       "tier": "metadata"
     },
     ".specify/integrations/claude.manifest.json": {
-      "digest": "sha256:84259be2ef5b03c050dc9712fba52cdd5fbb94bb5dbdc9397d936377c2ff4754",
+      "digest": "sha256:60c9f6413a5ea22ab878dbd603241c4b63787b4f1c90a7a32db89a13119aefa7",
       "size_bytes": 1727,
       "tier": "metadata"
     },
     ".specify/integrations/speckit.manifest.json": {
-      "digest": "sha256:81ee2da1ae4f0a97fd9a7796a1ce34f1951e75371ea750cc001855314d724c6d",
+      "digest": "sha256:49f1c44ac3e666fa6a3c2308ac9241821fd29d12970980dd984ee6236d9c3d2b",
       "size_bytes": 1142,
       "tier": "metadata"
     },
@@ -200,18 +200,18 @@
       "tier": "preset"
     },
     ".specify/presets/base-governance/templates/coding-standards-template.md": {
-      "digest": "sha256:44e55ee858aff279fab8b09e9bfbd656ef67b41c08428fd0721a6d8f2dededd7",
-      "size_bytes": 5610,
+      "digest": "sha256:f89ba3e55dd9fc6eb652ef5dfd02e776000232b7f9da95700d6453127c5ab931",
+      "size_bytes": 5621,
       "tier": "preset"
     },
     ".specify/presets/base-governance/templates/constitution-template.md": {
-      "digest": "sha256:81b423266ed16bb5cf87c425d39a03a8e7579d7419917f90163b74d1b530c00a",
-      "size_bytes": 18190,
+      "digest": "sha256:39bd89deb644a776e67f2becde45e962e00d0d24f2602bb15250933f11e3738f",
+      "size_bytes": 18372,
       "tier": "preset"
     },
     ".specify/presets/base-governance/templates/logging-standards-template.md": {
-      "digest": "sha256:3d25c07d290403336557b2fc0ded22fce771a4acf2746f7f5249762240796b5f",
-      "size_bytes": 7730,
+      "digest": "sha256:fe2ccb16beb0ee7dcdef7e22af75d075c05eca4a1fa08fc4bf3305b2970c17a6",
+      "size_bytes": 7651,
       "tier": "preset"
     },
     ".specify/presets/base-governance/templates/roadmap-template.md": {
@@ -225,18 +225,18 @@
       "tier": "core"
     },
     ".specify/templates/coding-standards-template.md": {
-      "digest": "sha256:44e55ee858aff279fab8b09e9bfbd656ef67b41c08428fd0721a6d8f2dededd7",
-      "size_bytes": 5610,
+      "digest": "sha256:f89ba3e55dd9fc6eb652ef5dfd02e776000232b7f9da95700d6453127c5ab931",
+      "size_bytes": 5621,
       "tier": "core"
     },
     ".specify/templates/constitution-template.md": {
-      "digest": "sha256:81b423266ed16bb5cf87c425d39a03a8e7579d7419917f90163b74d1b530c00a",
-      "size_bytes": 18190,
+      "digest": "sha256:39bd89deb644a776e67f2becde45e962e00d0d24f2602bb15250933f11e3738f",
+      "size_bytes": 18372,
       "tier": "core"
     },
     ".specify/templates/logging-standards-template.md": {
-      "digest": "sha256:3d25c07d290403336557b2fc0ded22fce771a4acf2746f7f5249762240796b5f",
-      "size_bytes": 7730,
+      "digest": "sha256:fe2ccb16beb0ee7dcdef7e22af75d075c05eca4a1fa08fc4bf3305b2970c17a6",
+      "size_bytes": 7651,
       "tier": "core"
     },
     ".specify/templates/plan-template.md": {
