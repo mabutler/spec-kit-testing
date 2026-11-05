@@ -1,0 +1,152 @@
+# Feature Specification: Subagent-Driven Spec Kit Orchestrator
+
+**Feature Branch**: `003-subagent-orchestrator`
+
+**Created**: 2026-11-05
+
+**Status**: Draft
+
+**Input**: User description: "Phase 3"
+
+## Clarifications
+
+### Session 2026-11-05
+
+- Q: How should the orchestrator's intelligent model selector assign default model tiers across the Spec Kit pipeline stages when no local override is specified? → A: Separate stages into two abstract capability roles—**High-Reasoning** (`clarify`, `plan`, `analyze`, `converge`, plus retry escalations) and **Standard/Fast Execution** (`specify`, `tasks`, `implement`)—mapped adaptively to the active model family (e.g., Argon/Pro → Flash, or Claude Opus → Sonnet) and capped by the user's currently selected session model at execution time (so running on Argon/Pro/Opus uses that model for reasoning stages and steps down to Flash/Sonnet for execution stages, whereas running on Flash/Sonnet caps all stages at Flash/Sonnet unless overridden).
+- Q: How should the subagent definitions in `.agents/agents/` be organized and referenced by the orchestrator? → A: Ship two role-based agent definitions in `.agents/agents/` (`speckit-reasoner.md` for High-Reasoning stages and retry escalations, and `speckit-executor.md` for Standard/Fast Execution stages) referenced by `speckit-orchestrate`. Support local overrides by editing those files (or gitignored `.local.md` counterparts) or by placing an optional per-stage agent override file (`speckit-<stage>.md` / `speckit-<stage>.local.md`) in `.agents/agents/`.
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - End-to-End Subagent Pipeline Orchestration with Clean Context Isolation (Priority: P1)
+
+Developers and engineering teams using Spec Kit need an intelligent orchestrator workflow (`speckit-orchestrate`) that coordinates the multi-stage feature delivery pipeline (`specify` → `clarify` → `plan` → `tasks` → `analyze` → `implement` → `converge`) by spawning dedicated subagents for each downstream stage, giving every step a fresh context window while sharing state exclusively through `.specify/feature.json` and on-disk feature artifacts.
+
+**Why this priority**: Manually invoking seven or more sequential Spec Kit commands requires repetitive human handoffs and accumulates massive context bloat in a single agent session. Context-isolated subagents coordinated by a single orchestrator eliminate manual toil and prevent earlier-stage reasoning noise from degrading downstream planning, task breakdown, implementation, and convergence accuracy.
+
+**Independent Test**: Can be fully tested by invoking `/speckit-orchestrate` (either directly on an existing feature in `.specify/feature.json` or from a feature description) and verifying that the orchestrator inspects current artifact state, spawns isolated subagents for each uncompleted stage in sequence, enforces artifact existence and quality gates between stages, and drives the feature through `converge` with a structured pipeline execution summary.
+
+**Acceptance Scenarios**:
+
+1. **Given** a feature specification in `SPECIFY_FEATURE_DIRECTORY/spec.md` (or a new feature description passed to `/speckit-orchestrate`), **When** the orchestrator executes, **Then** it resolves the active feature directory via `.specify/feature.json`, detects which lifecycle stages are already complete vs. pending, and sequentially dispatches isolated subagents for each remaining stage (`clarify` → `plan` → `tasks` → `analyze` → `implement` → `converge`).
+2. **Given** a running orchestrator session transitioning from one pipeline stage to the next, **When** a stage subagent is invoked, **Then** the orchestrator resolves the stage's Agent Definition from `.agents/agents/` (checking optional stage-specific/local overrides `speckit-<stage>.local.md` → `speckit-<stage>.md` before falling back to the role-based `.local.md` or default `speckit-reasoner.md` for `clarify`, `plan`, `analyze`, `converge`, and retry escalations, or `speckit-executor.md` for `specify`, `tasks`, and `implement`), applies the **Session Model Ceiling** (capping at the user's active session model unless overridden), and passes a focused prompt containing the active feature directory path, stage objective, and governance constraints (`.specify/memory/{constitution,coding-standards,logging-standards}.md`).
+3. **Given** an completed `implement` subagent pass on `tasks.md`, **When** the orchestrator transitions to the `converge` stage, **Then** it spawns a subagent to execute `speckit-converge`; if `speckit-converge` reports `tasks_appended`, the orchestrator automatically loops back to `speckit-implement` and re-runs `speckit-converge` (up to a bounded maximum of 3 convergence iterations) until the outcome is `converged` or the loop ceiling is reached.
+
+---
+
+### User Story 2 - Intelligent Quality Gates, Self-Healing Analysis, and Human-in-the-Loop Checkpoints (Priority: P2)
+
+Engineering leads and developers need deterministic quality gates between subagent transitions—specifically a **Clarify Gate**, an **Analyze & Self-Heal Gate**, and configurable **Execution Scope / Approval Checkpoints**—so the pipeline automatically resolves minor cross-artifact drift while immediately pausing and surfacing high-impact ambiguities or governance conflicts to the user before mutating downstream artifacts or source code.
+
+**Why this priority**: Unchecked automation that hallucinates answers to critical product ambiguities or proceeds into implementation despite broken plans or constitutional violations violates Constitutional Principle I (*Evidence Over Invention*) and Principle II (*Fail Closed on Required State*). Intelligent gates ensure speed never compromises epistemic truth or governance compliance.
+
+**Independent Test**: Can be fully tested by inspecting the orchestrator's gate rules and running it against (a) a spec with `[NEEDS CLARIFICATION]` markers, (b) a plan/tasks pair with minor vs. critical analysis findings, and (c) explicit checkpoint flags (such as `--pause-before-implement` or `--until=analyze`), verifying that the orchestrator pauses at mandatory human gates and self-heals non-blocking artifact drift within bounded retries.
+
+**Acceptance Scenarios**:
+
+1. **Given** a `spec.md` containing one or more `[NEEDS CLARIFICATION]` markers or high-impact ambiguity findings identified during the Clarify Gate, **When** the orchestrator evaluates the Clarify Gate, **Then** it halts pipeline progression prior to `speckit-plan`, presents the structured clarification questions to the user, and waits for user resolution before resuming.
+2. **Given** a `spec.md` with zero `[NEEDS CLARIFICATION]` markers and passing `checklists/requirements.md` validation, **When** the orchestrator evaluates the Clarify Gate in default autonomous mode, **Then** it records the Clarify Gate as passed and proceeds directly to the `speckit-plan` subagent without prompting the user.
+3. **Given** generated `spec.md`, `plan.md`, and `tasks.md` artifacts, **When** the `speckit-analyze` subagent detects only non-blocking (`MEDIUM` or `LOW`) cross-artifact drift (such as missing task requirement traceability tags or minor terminology alignment), **Then** the Analyze & Self-Heal Gate automatically invokes a remediation subagent pass to align `plan.md` or `tasks.md` and re-runs `speckit-analyze` (capped at a maximum of 2 self-heal iterations) before proceeding to `speckit-implement`.
+4. **Given** `speckit-analyze` findings that include any unresolved `CRITICAL` or `HIGH` severity issue (such as a violation of `.specify/memory/constitution.md`, `.specify/memory/coding-standards.md`, or `.specify/memory/logging-standards.md`, or an unmapped P1 requirement that requires a scope decision), **When** the Analyze & Self-Heal Gate evaluates the result, **Then** the orchestrator fails closed, halts before `speckit-implement`, and reports the blocking findings to the user.
+5. **Given** a user invocation of `/speckit-orchestrate` specifying a target stopping stage or approval checkpoint (e.g., `--pause-before-implement`, `--until=plan`, `--until=tasks`, or `--until=analyze`), **When** the pipeline completes the specified stage, **Then** the orchestrator halts cleanly and outputs a stage summary and resume instructions so the user can review the generated design artifacts before code implementation begins.
+
+---
+
+### User Story 3 - Role-Based Agent Definitions, Local Overrides, `after_specify` Hook & Safe Parallelism (Priority: P3)
+
+Users starting their workflow with `/speckit-specify` or customizing subagent models locally need reusable role-based agent definitions in `.agents/agents/` (`speckit-reasoner.md` and `speckit-executor.md`) with gitignored `.local.md` and per-stage override support, a built-in extension hook in `.specify/extensions.yml` (`hooks.after_specify`) connecting specification creation to `/speckit-orchestrate`, and safe concurrency rules that prevent concurrent write conflicts on shared artifacts.
+
+**Why this priority**: Decoupling agent profiles (`.agents/agents/`) from workflow skills (`.agents/skills/`) keeps skills pure while giving developers zero-friction local overrides for model tiers and tool permissions. Connecting `speckit-specify` to `speckit-orchestrate` via `.specify/extensions.yml` fulfills the roadmap's end-to-end entry point, while strict write-target isolation guarantees Constitutional Principle IV (*Single Authoritative State & Safe Concurrency*).
+
+**Independent Test**: Can be fully tested by verifying `.agents/agents/speckit-reasoner.md` and `.agents/agents/speckit-executor.md` exist with valid frontmatter and family-adaptive model tier mappings, confirming `.gitignore` excludes `.agents/agents/*.local.md`, verifying `.specify/extensions.yml` contains a valid `hooks.after_specify` entry for `speckit.orchestrate` (`/speckit-orchestrate`), and verifying `.agents/skills/speckit-orchestrate/SKILL.md` enforces single-writer stage transitions and disjoint-file verification before any parallel subagent invocation.
+
+**Acceptance Scenarios**:
+
+1. **Given** `.agents/agents/speckit-reasoner.md` and `.agents/agents/speckit-executor.md` installed in the repository, **When** a developer creates a local override file (such as `.agents/agents/speckit-executor.local.md` or a stage-specific `.agents/agents/speckit-implement.local.md`) or edits the agent frontmatter, **Then** `/speckit-orchestrate` resolves the override in priority order (`speckit-<stage>.local.md` → `speckit-<stage>.md` → `speckit-<role>.local.md` → `speckit-<role>.md`) and dispatches the stage subagent with the overridden model and settings without modifying any `.agents/skills/speckit-*/SKILL.md` files.
+2. **Given** `.specify/extensions.yml` configured in the repository root with a `hooks.after_specify` hook entry for `speckit.orchestrate`, **When** `/speckit-specify` completes specification validation, **Then** its Mandatory Post-Execution Hooks check parses `.specify/extensions.yml` without error and surfaces (when `optional: true`) or automatically executes (when `optional: false`) `/speckit-orchestrate` for the newly created feature in `.specify/feature.json`.
+3. **Given** an active orchestration run executing `speckit-implement` on a `tasks.md` containing tasks marked `[P]` (parallelizable), **When** the orchestrator or implementation subagent evaluates parallel execution, **Then** it only dispatches concurrent subagents for tasks within the same phase whose target file paths are explicitly listed and mutually disjoint, keeping all `tasks.md` checkbox state updates serialized through a single coordinator.
+
+---
+
+### Edge Cases
+
+- **Resuming a Partially Completed Feature**: If `spec.md` and `plan.md` already exist in `SPECIFY_FEATURE_DIRECTORY` (and pass prerequisite checks) when `/speckit-orchestrate` is invoked without `--force` / `--from=specify`, the orchestrator detects existing valid artifacts and resumes at the first incomplete stage (`speckit-tasks`) rather than regenerating `spec.md` or `plan.md` from scratch.
+- **Subagent Failure or Missing Output Artifact**: If a spawned subagent terminates with an error or returns success without having created its required artifact on disk (e.g., `plan.md` after the Plan stage or `tasks.md` after the Tasks stage), the orchestrator treats this as a boundary failure, logs a `WARN`/`CRITICAL` stage diagnostic per `.specify/memory/logging-standards.md`, halts immediately (failing closed), and reports the exact failed stage and missing artifact without launching subsequent subagents.
+- **Bounded Loop Ceilings on Self-Heal and Convergence**: To comply with Constitutional Principle VI (*Bounded Resources*), the Analyze & Self-Heal Gate is strictly bounded to at most 2 remediation cycles, and the Implement ↔ Converge loop is strictly bounded to at most 3 convergence cycles. If issues remain after reaching the ceiling, the orchestrator halts and presents the remaining findings to the user rather than looping indefinitely.
+- **Preventing Infinite Hook Recursion**: When `/speckit-orchestrate` itself invokes `speckit-specify` as Stage 1 (because the user started from `/speckit-orchestrate <feature description>`), the Specify subagent must not recursively re-trigger `/speckit-orchestrate` via `hooks.after_specify`.
+- **Strict Enforcement of Constitutional Principle III (No Automated Tests)**: Across all orchestrated stages (`plan`, `tasks`, `analyze`, `implement`, `converge`), the orchestrator and its subagents enforce `.specify/memory/constitution.md` Principle III and `.specify/memory/coding-standards.md`—never generating unit test files, test directories, or test tasks.
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: The repository MUST provide a dedicated orchestrator skill at `.agents/skills/speckit-orchestrate/SKILL.md` (invokable as `/speckit-orchestrate`) that coordinates the Spec Kit feature lifecycle across isolated subagents: `specify` (when starting from a raw description) → `clarify` → `plan` → `tasks` → `analyze` → `implement` → `converge`.
+- **FR-002**: The repository MUST provide a valid `.specify/extensions.yml` configuration registering `speckit.orchestrate` (`/speckit-orchestrate`) under `hooks.after_specify` (defaulting to `optional: true` so interactive `/speckit-specify` runs prompt the user with a one-command handoff, while supporting `optional: false` for automatic chaining).
+- **FR-003**: The orchestrator MUST resolve and persist feature state exclusively through `.specify/feature.json` (`feature_directory`) and the canonical files inside `SPECIFY_FEATURE_DIRECTORY` (`spec.md`, `checklists/requirements.md`, `plan.md`, `research.md`, `data-model.md`, `quickstart.md`, `contracts/`, `tasks.md`), ensuring `.specify/memory/{constitution,coding-standards,logging-standards}.md` and `SPECIFY_FEATURE_DIRECTORY` act as the single authoritative state across all subagents.
+- **FR-004**: Before dispatching any stage subagent, the orchestrator MUST inspect `SPECIFY_FEATURE_DIRECTORY` to determine current lifecycle state and support progressive resumption:
+  - If `spec.md` is absent and a feature description is provided in `$ARGUMENTS`, run the **Specify Stage** first; if both `spec.md` and a feature description are absent, fail closed with an actionable error message.
+  - If `spec.md`, `plan.md`, or `tasks.md` already exist and the user has not requested regeneration (e.g., via `--from=<stage>`), skip already-satisfied upstream artifact creation stages and resume at the next incomplete stage (always running the Clarify Gate before `plan` and the Analyze Gate before `implement`).
+- **FR-005**: The orchestrator MUST execute each major downstream workflow stage (`clarify` when deep ambiguity scan is requested, `plan`, `tasks`, `analyze`, `implement`, `converge`) in a separate subagent context by referencing role-based Agent Definitions in `.agents/agents/` and applying an **Adaptive Two-Tier Model Policy with Session Model Ceiling**:
+  - **Two Canonical Role-Based Agents**: The repository MUST provide `.agents/agents/speckit-reasoner.md` (assigned to High-Reasoning stages: `clarify`, `plan`, `analyze`, `converge`, plus any self-heal or convergence retry pass) and `.agents/agents/speckit-executor.md` (assigned to Standard/Fast Execution stages: `specify`, `tasks`, and initial `implement` pass).
+  - **Provider-Adaptive Model Mapping**: `speckit-reasoner` maps to the active provider family's high-reasoning tier (e.g., `Argon`/`Pro` in the Gemini family, `Opus` in the Claude family, or `inherit`/`pro` in the subagent runtime), while `speckit-executor` steps down to the paired fast execution tier (e.g., `Flash` in the Gemini family, `Sonnet` in the Claude family, or `flash` in the subagent runtime).
+  - **Session Model Ceiling**: By default (unless overridden by a local agent definition setting `override_ceiling: true` or an explicit user instruction in `$ARGUMENTS`), resolved subagent models are capped at the user's active session model at execution time—if the user invokes orchestration while on a high-reasoning model (`Argon`/`Pro`/`Opus`), reasoning stages use that model and execution stages step down to `Flash`/`Sonnet`; if the user invokes orchestration while on a lower-tier model (`Flash`/`Sonnet`), all stages remain capped at that model rather than escalating above the active session ceiling.
+  - **Agent Override Resolution Order**: Before spawning a subagent for `<stage>` with default `<role>` (`reasoner` or `executor`), the orchestrator MUST resolve the agent profile in this exact precedence order:
+    1. Explicit per-run model/agent instruction in `$ARGUMENTS`
+    2. `.agents/agents/speckit-<stage>.local.md` (gitignored machine-local per-stage override)
+    3. `.agents/agents/speckit-<stage>.md` (optional tracked per-stage override)
+    4. `.agents/agents/speckit-<role>.local.md` (gitignored machine-local role override)
+    5. `.agents/agents/speckit-<role>.md` (canonical tracked role-based default: `speckit-reasoner.md` or `speckit-executor.md`).
+  - **Gitignore Protection for Local Agent Overrides**: `.gitignore` MUST ignore `.agents/agents/*.local.md` so developers can customize local model tiers and agent profiles without polluting version control.
+- **FR-006**: Every subagent invocation constructed by the orchestrator MUST use the resolved Agent Definition from `.agents/agents/` (registering its persona, tool permissions, and resolved model tier) and pass a stage prompt that explicitly includes:
+  1. The exact path to the target skill file (`.agents/skills/speckit-<stage>/SKILL.md`) that the subagent MUST read and follow
+  2. The resolved `SPECIFY_FEATURE_DIRECTORY` path and `.specify/feature.json` reference
+  3. An instruction to load and enforce `.specify/memory/constitution.md`, `.specify/memory/coding-standards.md`, and `.specify/memory/logging-standards.md` (specifically including Principle III's prohibition on generating automated tests)
+  4. An instruction not to recursively trigger `speckit-orchestrate` via extension hooks during subagent execution
+  5. The expected structured completion report (status, resolved agent/model tier used, artifacts created/modified, gate findings, and any blocking issues).
+- **FR-007**: The orchestrator MUST enforce a deterministic **Clarify Gate** before spawning the `speckit-plan` subagent:
+  - Inspect `SPECIFY_FEATURE_DIRECTORY/spec.md` for `[NEEDS CLARIFICATION]` markers and verify `SPECIFY_FEATURE_DIRECTORY/checklists/requirements.md` has zero failing items.
+  - If `--clarify` is explicitly requested or if `spec.md` contains unresolved `[NEEDS CLARIFICATION]` markers or failing requirement checklist items, invoke `speckit-clarify` / surface the questions to the user and **PAUSE** pipeline execution until the user answers and `spec.md` is updated.
+  - If zero `[NEEDS CLARIFICATION]` markers exist and all items in `checklists/requirements.md` pass, record the Clarify Gate as `PASSED` and proceed automatically to the **Plan Stage**.
+- **FR-008**: The orchestrator MUST enforce a deterministic **Analyze & Self-Heal Gate** after `speckit-tasks` completes and before `speckit-implement` begins:
+  - Spawn an isolated subagent to execute `.agents/skills/speckit-analyze/SKILL.md` across `spec.md`, `plan.md`, `tasks.md`, and `.specify/memory/{constitution,coding-standards,logging-standards}.md`.
+  - If `speckit-analyze` reports zero findings, record the gate as `PASSED` and proceed.
+  - If `speckit-analyze` reports only non-blocking (`MEDIUM` or `LOW`) consistency/traceability drift between `plan.md` and `tasks.md` that can be resolved without altering `spec.md` scope or violating governance rules, dispatch a bounded self-heal subagent pass to update `plan.md` / `tasks.md` and re-run `speckit-analyze`, up to a maximum ceiling of **2 self-heal iterations**.
+  - If `speckit-analyze` reports any `CRITICAL` or `HIGH` finding (including any violation of `.specify/memory/{constitution,coding-standards,logging-standards}.md` or any unresolved requirement gap requiring human judgment), or if findings persist after 2 self-heal iterations, **FAIL CLOSED**: halt the pipeline immediately before `speckit-implement` and report the structured findings to the user.
+- **FR-009**: The orchestrator MUST support configurable **Human-in-the-Loop Checkpoints & Execution Scope Arguments** parsed from `$ARGUMENTS`:
+  - **Default Mode (Full Autopilot through Converge)**: Runs `specify` (if needed) → `clarify` gate → `plan` → `tasks` → `analyze` (with self-heal) → `implement` → `converge`, pausing only if the Clarify Gate or Analyze Gate encounters blocking issues.
+  - **Pre-Implementation Checkpoint (`--pause-before-implement` or `--until=analyze`)**: Runs autonomously through `plan`, `tasks`, and `analyze` (including self-heal), then halts cleanly and prompts the user to review `plan.md`, `tasks.md`, and the analysis summary before running `/speckit-orchestrate --resume` (or `/speckit-implement`).
+  - **Stage-Bounded Execution (`--until=plan` or `--until=tasks`)** and **Explicit Stage Restart (`--from=<stage>`)**: Allows users to stop at a specific stage boundary or force re-execution from a named stage (`clarify`, `plan`, `tasks`, `analyze`, `implement`, `converge`).
+- **FR-010**: During the **Implement & Converge Stage**, the orchestrator MUST:
+  - Spawn a subagent to execute `.agents/skills/speckit-implement/SKILL.md` for all incomplete tasks in `tasks.md`.
+  - Upon completion of `speckit-implement`, spawn a subagent to execute `.agents/skills/speckit-converge/SKILL.md`.
+  - If `speckit-converge` returns `tasks_appended`, automatically iterate (`speckit-implement` → `speckit-converge`) up to a hard ceiling of **3 convergence passes**.
+  - If `speckit-converge` returns `converged`, mark the pipeline complete; if `tasks_appended` persists after 3 passes, halt and report the remaining open tasks to the user.
+- **FR-011**: The orchestrator MUST enforce **Single-Writer Serialization and Safe Parallelism** (Constitutional Principle IV):
+  - Lifecycle stages that write shared specification or planning artifacts (`specify`, `clarify`, `plan`, `tasks`, `analyze` self-heal, `converge`) MUST execute sequentially, never concurrently.
+  - Parallel subagent invocation is permitted ONLY when executing independent read-only evaluations or when executing `tasks.md` items explicitly marked `[P]` within the same phase whose target file paths are verified to be mutually disjoint, with `tasks.md` status updates coordinated exclusively by a single owning agent after the parallel workers return.
+- **FR-012**: At the conclusion of every run (whether `CONVERGED`, `PAUSED_AT_CHECKPOINT`, or `HALTED_ON_GATE_FAILURE`), the orchestrator MUST output a structured **Pipeline Execution Summary** table reporting each stage (`Specify`, `Clarify Gate`, `Plan`, `Tasks`, `Analyze Gate`, `Implement`, `Converge`), its status (`SKIPPED_EXISTING`, `PASSED`, `SELF_HEALED`, `PAUSED`, `FAILED`, `PENDING`), the resolved Agent Profile and Model Tier used, artifacts produced/verified, iteration counts, and the exact next command or action for the user.
+
+### Key Entities
+
+- **Orchestrator Skill (`speckit-orchestrate`)**: The top-level coordinator skill in `.agents/skills/speckit-orchestrate/SKILL.md` that manages pipeline state transitions, agent/model resolution, subagent dispatch, quality gates, bounded self-healing/convergence loops, and checkpoint reporting.
+- **Role-Based Agent Definitions (`speckit-reasoner` & `speckit-executor`)**: Markdown agent profiles in `.agents/agents/speckit-reasoner.md` and `.agents/agents/speckit-executor.md` (with optional `.local.md` and `speckit-<stage>.md` overrides) declaring each subagent's role, capability tier (`reasoning` vs. `execution`), provider-adaptive model mapping (`Argon`/`Pro` ↔ `Flash`, `Opus` ↔ `Sonnet`), session-ceiling behavior, tool access, and system prompt.
+- **Pipeline Stage Descriptor**: The per-stage execution contract defining required input artifacts, the default agent role (`reasoner` vs. `executor`), the target skill (`.agents/skills/speckit-<stage>/SKILL.md`), expected output artifacts on disk, gate pass/fail criteria, and retry ceiling.
+- **Stage Gate Result (`Clarify Gate`, `Analyze & Self-Heal Gate`, `Convergence Gate`)**: The structured decision record evaluated between subagent transitions (`PASSED`, `SELF_HEALED`, `PAUSED_FOR_USER`, or `FAILED_CLOSED`) that governs whether the pipeline advances, retries (escalating to `speckit-reasoner` within its bounded ceiling), or halts for human intervention.
+- **Extension Hook Configuration (`.specify/extensions.yml`)**: The project-root hook registry wiring `hooks.after_specify` to `speckit.orchestrate` so specification creation connects directly into the subagent orchestrator pipeline.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-001**: A user can execute a complete Spec Kit feature workflow from specification through verified convergence (`specify` → `clarify` gate → `plan` → `tasks` → `analyze` gate → `implement` → `converge`) via a single `/speckit-orchestrate` invocation with 0 manual copy-paste handoffs between stages when no human clarification questions arise.
+- **SC-002**: 100% of downstream workflow stages (`plan`, `tasks`, `analyze`, `implement`, `converge`) run in isolated subagent contexts dispatched through the resolved `.agents/agents/` profile (`speckit-reasoner` or `speckit-executor`, respecting `.local.md` / per-stage overrides and the active session model ceiling) and read/write state exclusively through `.specify/feature.json` and `SPECIFY_FEATURE_DIRECTORY` files.
+- **SC-003**: 100% of specs containing unresolved `[NEEDS CLARIFICATION]` markers or `CRITICAL`/`HIGH` governance/analysis conflicts trigger a deterministic fail-closed pause before `speckit-plan` or `speckit-implement` executes, ensuring 0 unverified assumptions or constitutional violations are silently implemented.
+- **SC-004**: All automated retry loops enforce strict, deterministic upper bounds (maximum 2 self-heal iterations for `speckit-analyze` and maximum 3 convergence iterations for `speckit-implement` ↔ `speckit-converge`, escalating retry passes to `speckit-reasoner` up to the session model ceiling), guaranteeing 0 unbounded execution loops.
+- **SC-005**: `.agents/agents/speckit-reasoner.md`, `.agents/agents/speckit-executor.md`, `.agents/skills/speckit-orchestrate/SKILL.md`, and `.specify/extensions.yml` exist, are valid and parseable, `.gitignore` excludes `.agents/agents/*.local.md`, and all repository markdown skills, agent profiles, and configurations pass static validation with 0 unresolved placeholders and 0 automated test files generated.
+
+## Assumptions
+
+- **Dual Trigger Mechanism (`speckit-orchestrate` Skill + `after_specify` Hook)**: To satisfy both direct autopilot invocation and seamless continuation after `/speckit-specify` as outlined in `ROADMAP.md`, Phase 3 delivers both a standalone `.agents/skills/speckit-orchestrate/SKILL.md` skill and a `.specify/extensions.yml` file registering `speckit.orchestrate` under `hooks.after_specify` (with `optional: true` by default so running `/speckit-specify` alone does not unexpectedly launch full code implementation unless the user chooses to run `/speckit-orchestrate` or sets `optional: false`).
+- **Role-Based Agent Profiles with Session Model Ceiling**: High-reasoning stages (`clarify`, `plan`, `analyze`, `converge`, and retry escalations) reference `.agents/agents/speckit-reasoner.md` and execution stages (`specify`, `tasks`, `implement`) reference `.agents/agents/speckit-executor.md`. When the user's active session model is a high-reasoning model (`Argon`/`Pro` or `Opus`), `speckit-reasoner` stays on that model and `speckit-executor` steps down to `Flash` or `Sonnet`; when the active session model is `Flash` or `Sonnet`, both agents are capped at that model unless a local agent override (`.local.md` or per-stage `.md`) explicitly overrides the ceiling.
+- **Default Human-in-the-Loop Checkpoint Policy**: When `/speckit-orchestrate` is explicitly invoked without stage-limiting flags, the user's intent is end-to-end execution; therefore, the pipeline runs autonomously through `converge` unless a quality gate (`Clarify Gate` on ambiguities or `Analyze Gate` on `CRITICAL`/`HIGH` issues) requires human input. Users who want a manual review gate before code changes can pass `--pause-before-implement` (or `--until=analyze`).
+- **Single-Writer Artifact Safety**: Because Spec Kit artifacts (`spec.md`, `plan.md`, `tasks.md`) are shared Markdown files within `SPECIFY_FEATURE_DIRECTORY`, pipeline stages are strictly sequential. Parallel subagent dispatch is restricted to read-only checks or `[P]` implementation tasks operating on verified disjoint files.
+- **Scope Boundary Between Phase 3 and Phase 4**: Phase 3 defines and implements the subagent orchestrator skill (`.agents/skills/speckit-orchestrate/SKILL.md`), the role-based agent definitions (`.agents/agents/speckit-reasoner.md` and `.agents/agents/speckit-executor.md`), and `.specify/extensions.yml` hook integration in this repository. Packaging Phases 1–3 into a portable cross-repository bootstrapper script/preset bundle is deferred to Phase 4 per `ROADMAP.md`.

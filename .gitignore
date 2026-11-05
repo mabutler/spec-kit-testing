@@ -16,3 +16,6 @@ dist/
 build/
 *.egg-info/
 .pytest_cache/
+
+# Spec Kit subagent local overrides
+.agents/agents/*.local.md
