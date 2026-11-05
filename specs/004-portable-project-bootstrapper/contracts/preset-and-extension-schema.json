@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PresetAndExtensionSchemas",
+  "definitions": {
+    "PresetManifest": {
+      "type": "object",
+      "required": ["name", "version", "description", "provides"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "version": { "type": "string" },
+        "description": { "type": "string" },
+        "provides": {
+          "type": "object",
+          "required": ["templates"],
+          "properties": {
+            "templates": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["type", "name", "file"],
+                "properties": {
+                  "type": { "type": "string", "enum": ["template", "command", "script"] },
+                  "name": { "type": "string" },
+                  "file": { "type": "string" },
+                  "strategy": {
+                    "type": "string",
+                    "enum": ["replace", "prepend", "append", "wrap"],
+                    "default": "replace"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ExtensionManifest": {
+      "type": "object",
+      "required": ["name", "version", "description"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "version": { "type": "string" },
+        "description": { "type": "string" },
+        "hooks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["extension", "command", "description"],
+              "properties": {
+                "extension": { "type": "string" },
+                "command": { "type": "string" },
+                "description": { "type": "string" },
+                "prompt": { "type": "string" },
+                "enabled": { "type": "boolean", "default": true },
+                "optional": { "type": "boolean", "default": false }
+              }
+            }
+          }
+        }
+      }
+    },
+    "RegistryFile": {
+      "type": "object",
+      "properties": {
+        "presets": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "priority": { "type": "integer", "minimum": 1, "default": 10 },
+              "enabled": { "type": "boolean", "default": true }
+            }
+          }
+        },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "priority": { "type": "integer", "minimum": 1, "default": 10 },
+              "enabled": { "type": "boolean", "default": true }
+            }
+          }
+        }
+      }
+    }
+  }
+}

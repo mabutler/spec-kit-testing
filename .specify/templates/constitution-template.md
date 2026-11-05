@@ -8,6 +8,17 @@ Sync Impact Report (Latest Amendment Only — Do Not Accumulate History):
 
 # [PROJECT_NAME] Constitution
 
+<!--
+Template Resolution Hierarchy Specification:
+This template is resolved by agent skills using the native 4-tier template resolution hierarchy:
+- Tier 1 (Overrides): .specify/templates/overrides/constitution-template.md
+- Tier 2 (Presets): .specify/presets/<preset-id>/templates/constitution-template.md (evaluated per .specify/presets/.registry sorted ascending by priority; strategy: replace, prepend, append, wrap)
+- Tier 3 (Extensions): .specify/extensions/<ext-id>/templates/constitution-template.md (evaluated per .specify/extensions/.registry sorted ascending by priority)
+- Tier 4 (Core Fallback): .specify/templates/constitution-template.md
+
+Invariant: If a requested template is not found in any of the 4 tiers, the agent MUST fail closed and emit an error per Principle II.
+-->
+
 ## Sources of Truth & Authority Hierarchy
 
 When specifications, reference documents, test harnesses, or existing code disagree, authority ranks in this strict order:

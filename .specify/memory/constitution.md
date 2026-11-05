@@ -65,7 +65,7 @@ This project does not generate, require, or maintain automated test suites. All 
 ## Development Workflow & Quality Gates
 
 - **Spec Kit Pipeline & Ephemeral Specs**: Feature work follows the Spec Kit lifecycle (`spec.md` -> `plan.md` -> `tasks.md`). A feature spec is a transient proposal for one change, not permanent documentation. Before a feature's final pull request merges, all decisions, state contracts, and known gaps that outlive the feature MUST be promoted into permanent documentation (`Architecture.md`, component docs, or `open-questions.md`), and that final pull request MUST delete the `specs/NNN-*/` folder. Production code, comments, documentation, and commit messages outside `specs/` MUST NOT cite spec folders or `FR-XXX` identifiers.
-- **Pre-PR Verification**: `main` MUST always build cleanly. Before opening a pull request, the author or agent MUST run locked dependency restore, full build (zero warnings), linters, and any project-defined Live/Simulator Acceptance Gate: `.specify/scripts/bash/resolve-template.sh constitution-template --json`.
+- **Pre-PR Verification**: `main` MUST always build cleanly. Before opening a pull request, the author or agent MUST run locked dependency restore, full build (zero warnings), linters, and static syntax / schema verification per Principle III.
 - **Review & Merge Authority**: Pull requests SHOULD remain under ~500 lines; larger changes should be split. AI agents MUST NOT merge pull requests.
 
 ## Recorded Deviations

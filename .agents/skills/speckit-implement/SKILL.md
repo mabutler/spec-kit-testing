@@ -54,7 +54,11 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline
 
-1. Run `.specify/scripts/bash/check-prerequisites.sh --json --require-tasks --include-tasks` from repo root and parse FEATURE_DIR and AVAILABLE_DOCS list. All paths must be absolute. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+1. Discover `FeatureContext` and active feature paths natively:
+   - Check environment variable `SPECIFY_FEATURE_DIRECTORY` or read `.specify/feature.json` for `feature_directory`.
+   - Derive absolute path `FEATURE_DIR`. Validate that `feature_directory` MUST NOT be empty and `${FEATURE_DIR}/tasks.md` exists on disk.
+   - Scan `AVAILABLE_DOCS` list under `FEATURE_DIR` (e.g. `spec.md`, `plan.md`, `tasks.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`).
+   - If missing, abort with an error message instructing the user to run `/speckit-tasks`.
 
 2. **Check checklists status** (if FEATURE_DIR/checklists/ exists):
    - Treat checklist markers as a read-only gate: scan checkbox state, report status, and ask before proceeding when needed; do NOT modify checklist files or markers

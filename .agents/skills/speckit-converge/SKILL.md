@@ -91,18 +91,19 @@ When the codebase already satisfies everything, the command MUST leave `tasks.md
 
 ### 1. Initialize Convergence Context
 
-Run `.specify/scripts/bash/check-prerequisites.sh --json --require-spec --require-tasks --include-tasks` once from repo root and parse JSON for FEATURE_DIR and AVAILABLE_DOCS. Derive absolute paths:
-
-- SPEC = FEATURE_DIR/spec.md
-- PLAN = FEATURE_DIR/plan.md
-- TASKS = FEATURE_DIR/tasks.md
-- CONSTITUTION = `.specify/memory/constitution.md` (if present)
-- CODING_STANDARDS = `.specify/memory/coding-standards.md` (if present)
-- LOGGING_STANDARDS = `.specify/memory/logging-standards.md` (if present)
+Discover `FeatureContext` and active feature paths natively:
+- Check environment variable `SPECIFY_FEATURE_DIRECTORY` or read `.specify/feature.json` for `feature_directory`.
+- Derive absolute paths:
+  - SPEC = FEATURE_DIR/spec.md
+  - PLAN = FEATURE_DIR/plan.md
+  - TASKS = FEATURE_DIR/tasks.md
+  - CONSTITUTION = `.specify/memory/constitution.md` (if present)
+  - CODING_STANDARDS = `.specify/memory/coding-standards.md` (if present)
+  - LOGGING_STANDARDS = `.specify/memory/logging-standards.md` (if present)
+- Scan `AVAILABLE_DOCS` list under `FEATURE_DIR` (e.g. `research.md`, `data-model.md`, `contracts/`, `quickstart.md`).
 If `spec.md`, `plan.md`, or `tasks.md` is missing, STOP with a clear, actionable message naming the
 prerequisite command to run (`/speckit-specify` for a missing spec, `/speckit-plan` for a missing plan,
 `/speckit-tasks` for missing tasks). Do not produce partial output.
-For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
 
 ### 2. Load Artifacts (Progressive Disclosure)
 

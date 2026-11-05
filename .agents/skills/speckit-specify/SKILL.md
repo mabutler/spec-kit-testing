@@ -91,7 +91,12 @@ Given that feature description, do this:
       - If `branch_numbering` was used (and `feature_numbering` was absent), emit a one-line warning: "⚠️ `branch_numbering` in init-options.json is deprecated. Rename to `feature_numbering`."
 
    **Create the directory and spec file**:
-   - Run `.specify/scripts/bash/resolve-template.sh spec-template --json` from the repository root and parse `TEMPLATE_CONTENT` as the active `spec-template`. The shared resolver composes project overrides, preset layers, and extension layers over the core template, including `append`, `prepend`, and `wrap` strategies. If it fails, stop and report the resolution error; do not continue with only one contributing template layer.
+   - Resolve `spec-template` using native agent 4-tier template resolution:
+     1. Tier 1 (Overrides): Check if `.specify/templates/overrides/spec-template.md` exists. If so, use its content (strategy: `replace`).
+     2. Tier 2 (Presets): If `.specify/presets/.registry` exists, inspect enabled presets in order of ascending priority. Check the preset manifest (`preset.yml`) under `.specify/presets/<preset-id>/` for declared `spec-template` templates and compose using declared strategy (`replace`, `prepend`, `append`, `wrap`).
+     3. Tier 3 (Extensions): If `.specify/extensions/.registry` exists, inspect enabled extensions in order of ascending priority for declared `spec-template` templates.
+     4. Tier 4 (Core Fallback): Read `.specify/templates/spec-template.md`.
+     - Invariant: If `spec-template` is not found in any of the 4 tiers, the agent MUST fail closed and emit an error per Principle II. Parse `TEMPLATE_CONTENT` as the active resolved template.
    - `mkdir -p SPECIFY_FEATURE_DIRECTORY`
    - Write `TEMPLATE_CONTENT` to `SPECIFY_FEATURE_DIRECTORY/spec.md` as the starting point. Do not copy a template file from disk instead: when a preset composes `spec-template`, no single file holds the full template.
    - Set `SPEC_FILE` to `SPECIFY_FEATURE_DIRECTORY/spec.md`

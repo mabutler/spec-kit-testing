@@ -1,0 +1,183 @@
+{
+  "manifest_version": "1.0",
+  "bundle_version": "1.4.0",
+  "generated_at": "2026-11-05T12:00:00Z",
+  "source_commit": "HEAD",
+  "files": {
+    ".agents/agents/speckit-executor.md": {
+      "digest": "sha256:528c9e8d9451c0dafeaa956ee533795fd0e91ac9684bcdecbf0dcfc215eb6f65",
+      "size_bytes": 3737,
+      "tier": "agent"
+    },
+    ".agents/agents/speckit-reasoner.md": {
+      "digest": "sha256:6e460a19a939cac1ff0af3564add86ddfdc05cafd2945c85626b12d8e3e0d1d1",
+      "size_bytes": 4078,
+      "tier": "agent"
+    },
+    ".agents/skills/speckit-analyze/SKILL.md": {
+      "digest": "sha256:e5e812781c97fbe1e28ccc466bc07846fb1440e0a38fee4d254ed70ffa402cd7",
+      "size_bytes": 12802,
+      "tier": "skill"
+    },
+    ".agents/skills/speckit-bootstrap/SKILL.md": {
+      "digest": "sha256:3bd9203108c44effe65d6db1bc5703e1f9e206cb18c0a593943c83c707714c0c",
+      "size_bytes": 8008,
+      "tier": "skill"
+    },
+    ".agents/skills/speckit-checklist/SKILL.md": {
+      "digest": "sha256:b30a06e381307428a809f71e0aed045a18f8414e97235f11ccaf3acd1be05bcc",
+      "size_bytes": 23483,
+      "tier": "skill"
+    },
+    ".agents/skills/speckit-clarify/SKILL.md": {
+      "digest": "sha256:ed4f13fdd11105c072fc781f24a383002d820daf2f901c67b859046e4af6e623",
+      "size_bytes": 19731,
+      "tier": "skill"
+    },
+    ".agents/skills/speckit-constitution/SKILL.md": {
+      "digest": "sha256:f630d01b83a3c39c1fb9fb4499e0afe20feb8f29a1cb6002900148a3ce9b8009",
+      "size_bytes": 16719,
+      "tier": "skill"
+    },
+    ".agents/skills/speckit-converge/SKILL.md": {
+      "digest": "sha256:4c48dafb2117b705a36ae0bc87c242ae6c49b62ad841558c42797d4b1372bd53",
+      "size_bytes": 14003,
+      "tier": "skill"
+    },
+    ".agents/skills/speckit-implement/SKILL.md": {
+      "digest": "sha256:1f2691eb65855f36c1cd4f22a5ba5ccbbe082d289421914e9a1c45a6a5559b43",
+      "size_bytes": 14046,
+      "tier": "skill"
+    },
+    ".agents/skills/speckit-orchestrate/SKILL.md": {
+      "digest": "sha256:958179f88542c08149412d11d1a62770d9e25e365037d97817181985b78f7caf",
+      "size_bytes": 13941,
+      "tier": "skill"
+    },
+    ".agents/skills/speckit-plan/SKILL.md": {
+      "digest": "sha256:bef49b52d820ae8ec87d9cb3a94d1b0571d3f1d5f6072d1c34bff9b475ac945c",
+      "size_bytes": 9931,
+      "tier": "skill"
+    },
+    ".agents/skills/speckit-specify/SKILL.md": {
+      "digest": "sha256:23eac267637d5e97fbec93689f59f28efc3b9a67d0cbd9fbf8b2c779c218fecd",
+      "size_bytes": 19553,
+      "tier": "skill"
+    },
+    ".agents/skills/speckit-tasks/SKILL.md": {
+      "digest": "sha256:242f55839e35fb3bc5e585379a06d4a71fe1e508c63835541a26b5678e3e0232",
+      "size_bytes": 12743,
+      "tier": "skill"
+    },
+    ".specify/.gitignore": {
+      "digest": "sha256:0a61c5378b0bb2e0f85babff99c8b166f2170a2c12378cd17d929aa19296ec88",
+      "size_bytes": 586,
+      "tier": "metadata"
+    },
+    ".specify/extensions.yml": {
+      "digest": "sha256:28a0d12184a73919661b2b15f085103a2f0a867817ae5166025ad3bb4d0e1ff2",
+      "size_bytes": 510,
+      "tier": "metadata"
+    },
+    ".specify/extensions/.registry": {
+      "digest": "sha256:b0a51226ca0312bcaa42017ee4f64afee4580d339fdf9be71c4229ef4133756b",
+      "size_bytes": 106,
+      "tier": "extension"
+    },
+    ".specify/extensions/speckit-orchestrator/extension.yml": {
+      "digest": "sha256:080048e3356056dc580fc72cca7f9930f6fb79ad9b14a97e73d94873e005e235",
+      "size_bytes": 610,
+      "tier": "extension"
+    },
+    ".specify/init-options.json": {
+      "digest": "sha256:4ac45437276a6ec3e3550b5433251791dd5ec4ffc0dade10e9a0c1b52bad7949",
+      "size_bytes": 196,
+      "tier": "metadata"
+    },
+    ".specify/integration.json": {
+      "digest": "sha256:51955284d391020f7bb34def226cda83d2142af9902726295bbd4152e4200c51",
+      "size_bytes": 268,
+      "tier": "metadata"
+    },
+    ".specify/integrations/agy.manifest.json": {
+      "digest": "sha256:18bce6f8ceb29566315769d8d90f57418097c30b1b3f9df050edf6f445440c05",
+      "size_bytes": 1609,
+      "tier": "metadata"
+    },
+    ".specify/integrations/speckit.manifest.json": {
+      "digest": "sha256:83f156af6325ab0505f6560b8d6eaf33b5f17791528bf6c79e42bd67cc6ce2fe",
+      "size_bytes": 1028,
+      "tier": "metadata"
+    },
+    ".specify/presets/.registry": {
+      "digest": "sha256:10a4f7faafed6494de1b79d67eebe16d0d1ad4f96aa3a55818ec5a861b200c4a",
+      "size_bytes": 98,
+      "tier": "preset"
+    },
+    ".specify/presets/base-governance/preset.yml": {
+      "digest": "sha256:faa3373bf0f0e5d029190d19e7c28f8b10c107cbf040841ceb64070801fbce17",
+      "size_bytes": 563,
+      "tier": "preset"
+    },
+    ".specify/presets/base-governance/templates/coding-standards-template.md": {
+      "digest": "sha256:1a05b3d9841cad4f87853f180db4c8a9be2902a7e9e5f6afc8a71a9e8cf606f6",
+      "size_bytes": 4908,
+      "tier": "preset"
+    },
+    ".specify/presets/base-governance/templates/constitution-template.md": {
+      "digest": "sha256:e7603c5ed5f7e952c143c7a1519559ae2d391744d73ddbd24e3c9e7ffcc61a19",
+      "size_bytes": 17256,
+      "tier": "preset"
+    },
+    ".specify/presets/base-governance/templates/logging-standards-template.md": {
+      "digest": "sha256:3d25c07d290403336557b2fc0ded22fce771a4acf2746f7f5249762240796b5f",
+      "size_bytes": 7730,
+      "tier": "preset"
+    },
+    ".specify/templates/checklist-template.md": {
+      "digest": "sha256:85aff7c63f600aaf4996f90b91d113b5bb00291d44867b5a19503b9fefff2268",
+      "size_bytes": 2814,
+      "tier": "core"
+    },
+    ".specify/templates/coding-standards-template.md": {
+      "digest": "sha256:1a05b3d9841cad4f87853f180db4c8a9be2902a7e9e5f6afc8a71a9e8cf606f6",
+      "size_bytes": 4908,
+      "tier": "core"
+    },
+    ".specify/templates/constitution-template.md": {
+      "digest": "sha256:e7603c5ed5f7e952c143c7a1519559ae2d391744d73ddbd24e3c9e7ffcc61a19",
+      "size_bytes": 17256,
+      "tier": "core"
+    },
+    ".specify/templates/logging-standards-template.md": {
+      "digest": "sha256:3d25c07d290403336557b2fc0ded22fce771a4acf2746f7f5249762240796b5f",
+      "size_bytes": 7730,
+      "tier": "core"
+    },
+    ".specify/templates/plan-template.md": {
+      "digest": "sha256:3ad54b693d26f7cee0c158e811be191902a79543fc46650bacb62b4448252e6a",
+      "size_bytes": 4667,
+      "tier": "core"
+    },
+    ".specify/templates/spec-template.md": {
+      "digest": "sha256:ef73b63c629d0a99c003d7a0fe1ccb4f98c227cedccb56c9313422e934e3569a",
+      "size_bytes": 5317,
+      "tier": "core"
+    },
+    ".specify/templates/tasks-template.md": {
+      "digest": "sha256:cf022b5625805513a272a521ba72c1a72c6f01f5b864c1d196deade272f61cba",
+      "size_bytes": 10160,
+      "tier": "core"
+    },
+    ".specify/workflows/speckit/workflow.yml": {
+      "digest": "sha256:177761c5e7df28126beea043b5cb45aeaf7958090c022dc11ac71399422fcfbc",
+      "size_bytes": 2118,
+      "tier": "metadata"
+    },
+    ".specify/workflows/workflow-registry.json": {
+      "digest": "sha256:a0a86026f9c8f1b852332fd89ccb8c84850ce8c942db18251c579425f759261d",
+      "size_bytes": 369,
+      "tier": "metadata"
+    }
+  }
+}

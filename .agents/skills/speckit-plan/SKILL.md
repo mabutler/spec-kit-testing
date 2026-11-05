@@ -54,7 +54,17 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ## Outline
 
-1. **Setup**: Run `.specify/scripts/bash/setup-plan.sh --json` from repo root and parse JSON for FEATURE_SPEC, IMPL_PLAN, FEATURE_DIR, BRANCH. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
+1. **Setup**: Discover `FeatureContext` and active feature paths natively:
+   - Check environment variable `SPECIFY_FEATURE_DIRECTORY` or read `.specify/feature.json` for `feature_directory`.
+   - Derive absolute paths: `FEATURE_DIR`, `FEATURE_SPEC` (`${FEATURE_DIR}/spec.md`), `IMPL_PLAN` (`${FEATURE_DIR}/plan.md`), and `BRANCH` (basename of `FEATURE_DIR`).
+   - Validate prerequisite: `feature_directory` MUST NOT be empty and `${FEATURE_DIR}/spec.md` MUST exist on disk.
+   - Resolve `plan-template` across the 4-tier hierarchy:
+     1. Tier 1 (Overrides): `.specify/templates/overrides/plan-template.md`
+     2. Tier 2 (Presets): `.specify/presets/<preset-id>/templates/plan-template.md` (per `.specify/presets/.registry`, respecting composition strategies)
+     3. Tier 3 (Extensions): `.specify/extensions/<ext-id>/templates/plan-template.md` (per `.specify/extensions/.registry`)
+     4. Tier 4 (Core Fallback): `.specify/templates/plan-template.md`
+     - Invariant: If a requested template is not found in any of the 4 tiers, the agent MUST fail closed and emit an error per Principle II.
+   - If `${FEATURE_DIR}/plan.md` does not exist, write the resolved `plan-template` to `${FEATURE_DIR}/plan.md`.
 
 2. **Load context**: Read FEATURE_SPEC and the project governance suite in `.specify/memory/`: `.specify/memory/constitution.md`, plus `.specify/memory/coding-standards.md` and `.specify/memory/logging-standards.md` (if present). If companion standards are missing in a legacy repo, proceed with `constitution.md` without crashing (noting that running `/speckit-constitution` will initialize companion standards). Load IMPL_PLAN template (already copied).
 

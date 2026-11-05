@@ -78,19 +78,17 @@ All three documents are resolved, populated, synchronized, and persisted simulta
 
 Follow this execution flow:
 
-### 1. Template Resolution (Dual-Mode)
+### 1. Template Resolution (Native 4-Tier Hierarchy)
 
 For each of the three governance templates (`constitution-template`, `coding-standards-template`, `logging-standards-template`):
-1. **Primary Resolution (POSIX/Bash)**:
-   Run `.specify/scripts/bash/resolve-template.sh <template-name> --json` from repo root and parse `TEMPLATE_CONTENT` as the active scaffold.
-2. **Platform-Agnostic 4-Tier Fallback**:
-   If the bash script cannot be executed, resolve `<template-name>.md` by checking the 4-tier hierarchy in order:
-   - 1st: `.specify/templates/overrides/<template-name>.md`
-   - 2nd: `.specify/presets/<preset-id>/templates/<template-name>.md` (by registry priority)
-   - 3rd: `.specify/extensions/<ext-id>/templates/<template-name>.md` (by registry priority)
-   - 4th: `.specify/templates/<template-name>.md`
-3. Template resolution MUST succeed for all three templates before proceeding. Do NOT write back to any source template in `.specify/templates/`, `.specify/presets/`, or `.specify/extensions/`.
-4. Load existing files in `.specify/memory/` if present (`constitution.md`, `coding-standards.md`, `logging-standards.md`) as the source of current project values, ratified deviations, and past amendments.
+Resolve `<template-name>.md` natively using the 4-tier hierarchy in order:
+1. Tier 1 (Overrides): `.specify/templates/overrides/<template-name>.md` (strategy: `replace`)
+2. Tier 2 (Presets): `.specify/presets/<preset-id>/templates/<template-name>.md` (evaluated per `.specify/presets/.registry` in ascending priority order, respecting composition strategies: `replace`, `prepend`, `append`, `wrap`)
+3. Tier 3 (Extensions): `.specify/extensions/<ext-id>/templates/<template-name>.md` (evaluated per `.specify/extensions/.registry` in ascending priority order)
+4. Tier 4 (Core Fallback): `.specify/templates/<template-name>.md`
+- Invariant: If a requested template is not found in any of the 4 tiers, the agent MUST fail closed and emit an error per Principle II.
+- Template resolution MUST succeed for all three templates before proceeding. Do NOT write back to any source template in `.specify/templates/`, `.specify/presets/`, or `.specify/extensions/`.
+- Load existing files in `.specify/memory/` if present (`constitution.md`, `coding-standards.md`, `logging-standards.md`) as the source of current project values, ratified deviations, and past amendments.
 
 ### 2. Optional Enhancement Module Activation & Precedence
 

@@ -1,0 +1,11 @@
+name: "speckit-orchestrator"
+version: "1.0.0"
+description: "Context-isolated subagent orchestrator extension for Spec Kit"
+hooks:
+  after_specify:
+    - extension: "speckit-orchestrator"
+      command: "speckit.orchestrate"
+      description: "Coordinate context-isolated subagents across clarify, plan, tasks, analyze, implement, and converge"
+      prompt: "Specification complete and validated. Run /speckit-orchestrate to launch the subagent-driven delivery pipeline (or /speckit-orchestrate --pause-before-implement to review plan and tasks before code changes)."
+      enabled: true
+      optional: true
