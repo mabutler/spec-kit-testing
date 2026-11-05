@@ -1,10 +1,12 @@
 <!--
 Sync Impact Report (Latest Amendment Only — Do Not Accumulate History):
-- Version Change: 0.0.0 -> 1.0.0
-- Modified Principles: Initial ratification from Standard Base Template (Principles I–VII).
-- Modified Sections: Sources of Truth & Authority Hierarchy, Core Principles, Development Workflow & Quality Gates, Recorded Deviations, Governance.
-- Optional Modules: None (all optional modules A–D omitted per project configuration).
-- Rationale: Initial ratification of Base Governance Constitution for Spec Kit Testing.
+- Version Change: 1.0.0 -> 2.0.0
+- Modified Principles: Principle III weakened/redefined per explicit human authority to eliminate automated test generation requirements in favor of static verification.
+- Modified Sections: Core Principles (Principle III), Development Workflow & Quality Gates, Recorded Deviations
+- Optional Modules: MODULE-A: OMITTED, MODULE-B: OMITTED, MODULE-C: OMITTED, MODULE-D: OMITTED (MODULE-D-AOT-TRIM: OMITTED), TRACE Logging: OMITTED
+- Companion Standards: coding-standards.md (updated), logging-standards.md (updated)
+- Rationale: Explicit human authority directive to weaken/redefine Core Principle III to disallow automated test generation across the project.
+- Deferred TODOs: None
 -->
 
 # Spec Kit Testing Constitution
@@ -15,7 +17,7 @@ When specifications, reference documents, test harnesses, or existing code disag
 
 1. **Feature Specifications & Acceptance Requirements** (Ratified documents in `specs/`)
 2. **Architecture & Design Documentation** (`Architecture.md`, `README.md`)
-3. **Existing Implementation & Automated Test Suite** (Source code and test suites)
+3. **Existing Implementation & Script Harnesses** (Source code and automation scripts)
 
 ## Core Principles
 
@@ -32,17 +34,11 @@ Failures divide into two distinct categories and MUST be handled accordingly:
 - **Explicit Unimplemented Semantics**: Code MUST NOT substitute guessed defaults for missing required data. Unimplemented or intentionally unsupported operations on an interface surface MUST return distinct, typed `NotImplemented` or `Unsupported` results—never empty method bodies that simulate success.
 - **Fail Closed on Required State**: State, checks, or configuration required for security, integrity, or diagnosability MUST be established before dependent functions run. Quietly degrading, continuing with a warning, or retrying silently in the background is forbidden unless ratified under Recorded Deviations.
 
-### III. Behavioral, Value-Driven Testing & Deterministic Execution
-Every automated test MUST guard meaningful behavioral contracts or plausible regressions through production entry points.
-- **Encapsulation & Contract Focus**: Visibility MUST NOT be widened (`private` to `public`), and test-only members MUST NOT be added solely to reach internals (internal-visibility exemptions require written justification). Tests MUST verify behavioral outcomes and MUST NOT assert on log text, operator display strings, or the absence of deleted code/files.
-- **Plan Justification & Skip Allowlist**: Every `/speckit-plan` MUST list the tests it intends to write and state what risk each guards against. Comprehensive behavioral and branch coverage is expected across all domain logic, state machines, parsers, and error boundaries. Omitting unit tests without a plan justification is permitted ONLY for:
-  1. Compiler-generated, schema-generated, or code-generator output.
-  2. Defect-invariant guards (unreachable-code traps and internal post-validation assertions) unreachable via public entry points.
-  3. Pure data carriers (DTOs, immutable value/record snapshots) and thin pass-through adapter wrappers over OS/hardware seams.
-  4. Application host bootstrap entry points, declarative CLI binding declarations, and declarative UI layout markup covered by smoke/acceptance gates.
-  5. One-off build/provisioning scripts verified by automated linters and live acceptance gates.
-- **Unprivileged, Deterministic Unit Tests**: Automated unit tests MUST run without administrator/root privileges and MUST NOT touch real disks/partitions, real network endpoints, or committed cryptographic key material (ephemeral keys/certs are generated per run). Time MUST be injected via a time abstraction or explicit timestamps and randomness seeded.
-- **Hostile Boundary Coverage & Bug Ratchet**: Any parser of untrusted bytes or security verification gate MUST include negative and hostile-input tests (malformed payloads, oversized counts, offset overflows, bad signatures). Every defect discovered in integration testing, simulator runs, or production MUST receive a reproducing regression test alongside the fix.
+### III. Static Verification & No Automated Tests
+This project does not generate, require, or maintain automated test suites. All feature delivery and quality verification rely strictly on static analysis, syntax validation, and declarative quality gates.
+- **Encapsulation & Contract Focus**: Visibility MUST NOT be widened (`private` to `public`), and artificial inspection members MUST NOT be added. Code contracts are verified through static typing, schema constraints, and linter rules.
+- **Plan Justification & Skip Allowlist**: Automated test generation is disabled repository-wide. Spec Kit feature workflows (`spec.md`, `plan.md`, `tasks.md`, `implement`) MUST NOT generate unit test files, integration test harnesses, or test tasks. All feature tasks focus directly on implementation, validation scripts, and documentation.
+- **Hostile Boundary & Invariant Handling**: Input parsers and security checks enforce boundary defenses and fail-closed invariants in production logic without requiring automated test harness files.
 
 ### IV. Single Authoritative State, Enforced Boundaries & Safe Concurrency
 - **Single Source of Truth**: Every piece of domain state MUST have exactly one authoritative owning model. Registries, lookup tables, and projections are read-only views or pure indexes—never competing, independently mutated copies of state owned elsewhere.
@@ -69,14 +65,14 @@ Every automated test MUST guard meaningful behavioral contracts or plausible reg
 ## Development Workflow & Quality Gates
 
 - **Spec Kit Pipeline & Ephemeral Specs**: Feature work follows the Spec Kit lifecycle (`spec.md` -> `plan.md` -> `tasks.md`). A feature spec is a transient proposal for one change, not permanent documentation. Before a feature's final pull request merges, all decisions, state contracts, and known gaps that outlive the feature MUST be promoted into permanent documentation (`Architecture.md`, component docs, or `open-questions.md`), and that final pull request MUST delete the `specs/NNN-*/` folder. Production code, comments, documentation, and commit messages outside `specs/` MUST NOT cite spec folders or `FR-XXX` identifiers.
-- **Pre-PR Verification**: `main` MUST always build cleanly. Before opening a pull request, the author or agent MUST run locked dependency restore, full build (zero warnings), linters, and the automated test suite locally, plus any project-defined Live/Simulator Acceptance Gate: `.specify/scripts/bash/resolve-template.sh constitution-template --json`.
+- **Pre-PR Verification**: `main` MUST always build cleanly. Before opening a pull request, the author or agent MUST run locked dependency restore, full build (zero warnings), linters, and any project-defined Live/Simulator Acceptance Gate: `.specify/scripts/bash/resolve-template.sh constitution-template --json`.
 - **Review & Merge Authority**: Pull requests SHOULD remain under ~500 lines; larger changes should be split. AI agents MUST NOT merge pull requests.
 
 ## Recorded Deviations
 
 Any ratified exception to a Core Principle MUST be recorded here with: (1) Principle violated, (2) Ratifying human authority, (3) Rationale, (4) Compensating control, and (5) Known gap and documentation link.
 
-- *None currently recorded.*
+- *None currently recorded (Principle III amended directly per human authority to establish static verification without automated tests).*
 
 ## Governance
 
@@ -85,10 +81,10 @@ Any ratified exception to a Core Principle MUST be recorded here with: (1) Princ
   1. Epistemic Truth, Trust Verification & Secret Safety (Principles I, VII)
   2. Fail Closed & Resource/Destructive Safety (Principles II, VI)
   3. Architectural Boundaries, Single State & Concurrency (Principle IV)
-  4. Testing & Supply-Chain/Toolchain Gates (Principles III, V)
+  4. Toolchain, Supply-Chain & Static Quality Gates (Principles III, V)
   5. Code Hygiene & Style (Principle VII)
   6. Unbenchmarked Performance (Principle VI)
   Degrading a higher-ranked concern to serve a lower-ranked one requires human owner ratification and an entry under **Recorded Deviations**.
 - **Amendment & Versioning**: Amendments require explicit human approval, a rationale, and a Semantic Version bump (`MAJOR` for backward-incompatible principle removals/redefinitions; `MINOR` for new principles or expanded gates; `PATCH` for clarifications). Only the most recent amendment summary is kept in the top HTML sync comment.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-04 | **Last Amended**: 2026-11-04
+**Version**: 2.0.0 | **Ratified**: 2026-11-04 | **Last Amended**: 2026-11-04

@@ -1,0 +1,102 @@
+# Spec Kit Testing Logging Standards
+
+## Constitutional Authority & Precedence
+
+This document operationalizes the telemetry, logging, and observability principles established in the **Spec Kit Testing Constitution** into concrete operational standards.
+
+- **Authority Link**: Governed by the rules and principles defined in `.specify/memory/constitution.md`, specifically Principle II (*Two-Tier Failure Model & Fail Closed on Required State*) and Principle VII (*Code Hygiene, Ubiquitous Language & Safe Logging*).
+- **Precedence Declaration**: The Constitution ranks highest in authority. In any conflict between this Logging Standards document and the Core Principles of the Constitution, the Constitution strictly prevails.
+- **Scope**: Applies to all agent skill workflows, command-line interfaces, scripts, and diagnostic output across this repository.
+
+---
+
+## Severity Taxonomy
+
+Telemetric event logging divides into four core severity levels mapped to the Two-Tier Failure Model, plus an optional fifth level (`TRACE`) for mechanical function tracing:
+
+- **CRITICAL** — System restarting or halting immediately. Fatal defect invariants, violated preconditions, unrecoverable programmer errors, or corrupted internal state. MUST include exception details and restart reason.
+- **WARN** — Recoverable operation rejection or failure where execution continues. Worth monitoring for patterns in production; declined or failed operations MUST NOT be hidden in DEBUG.
+- **INFO** — Significant lifecycle milestone. States the business or system outcome rather than internal diagnostic data; should read like an audit trail. Significant actions MUST log both attempt and result so mid-operation crashes leave a record.
+- **DEBUG** — Application's interpretation of state and diagnostic reasoning prior to a milestone ("engineer's working notes"). Carries internal diagnostic reasoning; MUST NOT leak into INFO.
+- **TRACE (Optional)** — Mechanical entry and exit logging on every function and return path with parameter and return values, when enabled by the project.
+
+---
+
+## Level Placement & Logging Mechanics
+
+1. **Outcome vs. Diagnostic Reasoning**:
+   - `INFO` states what happened (e.g., `"Governance suite synchronized"`). `DEBUG` carries the diagnostic reasoning (e.g., `"Resolved template via primary bash resolver in 12ms"`). Never put diagnostic data in `INFO`.
+2. **Attempt and Result Logging**:
+   - Significant actions being taken (not just final outcomes) belong at `INFO` — log both the attempt and the result so that a crash mid-operation leaves a verifiable forensic record.
+3. **Failures and Rejections**:
+   - Declined, rejected, or failed-but-continuing operations MUST be logged at `WARN`, never hidden in `DEBUG`.
+4. **Lifecycle Actions in Verbose Layers**:
+   - An internal engine, driver, or backend module behind a higher-level entry point still logs its one-time startup, initialization, and shutdown actions at `INFO` if the action executes once per lifecycle and its effect persists for the entire lifecycle. The verbose default for such layers applies only to recurring, per-event work.
+5. **No Redundant Callee Logging (When TRACE Is Enabled)**:
+   - Do not re-log what a callee's `TRACE` already shows. If data is significant enough for `DEBUG`, prefer promoting that `TRACE` line to `DEBUG` over adding duplicate lines.
+
+---
+
+## TRACE Entry & Exit Rules (Optional)
+
+*Applies only when mechanical `TRACE`-level function tracing is enabled for this project.*
+
+1. **Comprehensive Coverage**:
+   - Mechanical entry and exit logging on every function and every return path.
+   - An exit `TRACE` is required even when an `INFO` or `WARN` immediately precedes the return statement.
+2. **Complex Object Representation**:
+   - For complex object parameters, use a `ToString` override or a dedicated `ToTrace` helper with a fixed set of cheap properties. Do not select or extract arbitrary fields inline at each call site.
+3. **External Library Seam**:
+   - External library calls have no `TRACE`. Log what was returned or observed at `DEBUG` in the caller instead.
+
+---
+
+## Ambient Scope Correlation & Context
+
+1. **Scope-Driven Correlation Tokens**:
+   - `session_id` and `event_id` MUST be read from ambient scope state automatically.
+   - NEVER pass correlation IDs as method arguments or log them manually at call sites.
+2. **Structured Semantic Templates**:
+   - All log messages MUST use structured message templates with named placeholders (e.g., `"Command {CommandName} completed for feature {FeatureDir}"`).
+   - String concatenation, arbitrary string formatting, and raw string interpolation that obliterate property semantics are prohibited.
+
+---
+
+## Forbidden Data & Redaction Policy
+
+1. **Strictly Forbidden Data**:
+   - Passwords, tokens, secrets, API keys, authentication credentials, and cryptographic private keys MUST NEVER appear in logs or operator-visible outputs.
+   - Full credit card numbers, SSNs, government identification numbers, or raw PII (Personally Identifiable Information) MUST NEVER be logged.
+2. **Permitted Identifiers**:
+   - Non-sensitive internal domain entity identifiers (such as task IDs, requirement IDs, file paths, and branch names) are permitted.
+
+---
+
+## Performance & Testing Boundary Rules
+
+1. **Performance Level Guards**:
+   - Guard expensive log argument evaluations or string serializations with an explicit level check (e.g., checking if `DEBUG` is enabled). Simple variable interpolation does not require a guard.
+   - High-frequency events (sustained >100/sec) MUST be sampled or aggregated rather than logging every individual occurrence.
+2. **Verification Boundary Rule**:
+   - Quality checks, scripts, and linters MUST NOT assert on log message text, log formats, or operator display strings. Code contracts verify domain outcomes and state contracts.
+
+---
+
+## Project Telemetry Configuration
+
+This section specifies project-specific telemetry libraries, sinks, formats, and retention rules for **Spec Kit Testing**.
+
+### Logging Framework & Abstraction
+- **Framework**: Standard POSIX stream separation (stdout for data payloads, stderr for diagnostic and operational telemetry) with structured level prefixes (`CRITICAL`, `WARN`, `INFO`, `DEBUG`).
+
+### Sinks, Destinations & Output Formats
+- **Sinks & Formats**: Console standard streams (`stdout` / `stderr`); compact JSON output on `stdout` when `--json` flag is provided to CLI scripts, human-readable structured lines otherwise.
+
+### Correlation Identifier Schema
+- **Correlation Schema**: Feature directory name or CLI process execution ID passed via environment context (`FEATURE_DIR`, `BRANCH`).
+
+### Redaction & Sanitization Mechanism
+- **Redaction Engine**: Static inspection and strict hygiene policy preventing tokens, keys, credentials, or private paths from appearing in console streams or persisted files.
+
+### Retention & High-Frequency Sampling Policy
+- **Retention & Sampling**: Interactive CLI telemetry is ephemeral and retained in console session logs only. Mechanical TRACE entry/exit logging is disabled (OMITTED).
