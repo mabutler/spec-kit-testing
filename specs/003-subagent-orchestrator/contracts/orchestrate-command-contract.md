@@ -12,10 +12,11 @@ The orchestrator skill parses `$ARGUMENTS` for optional execution-scope flags an
 | Flag / Argument | Syntax | Default | Behavior |
 | :--- | :--- | :--- | :--- |
 | `FEATURE_DESCRIPTION` | Free-form text (non-flag tokens) | Empty | Used to run Stage 1 (`speckit-specify`) when `SPECIFY_FEATURE_DIRECTORY/spec.md` does not yet exist. Ignored (unless `--from=specify` is passed) when `spec.md` already exists. |
-| `--pause-before-implement` | Boolean flag | `false` | Runs autonomously through `plan`, `tasks`, and `analyze` (including bounded self-heal), then halts cleanly (`PAUSED_FOR_USER`) before `implement`. Equivalent to `--until=analyze`. |
-| `--until=<stage>` | `--until=clarify\|plan\|tasks\|analyze\|implement\|converge` | `converge` | Halts cleanly (`PAUSED_FOR_USER`) immediately after the specified stage and its gate complete. |
+| `--continue` / `--continuous` | Boolean flag | `false` | Bypasses the default pre-implementation checkpoint and runs continuously through the end (`converge`). Equivalent to `--until=converge`. |
+| `--pause-before-implement` | Boolean flag | `true` | Halts cleanly (`PAUSED_AT_CHECKPOINT`) before `implement`. This is the default orchestrator behavior; retained as an explicit flag for backward compatibility. |
+| `--until=<stage>` | `--until=clarify\|plan\|tasks\|analyze\|implement\|converge` | `analyze` | Halts cleanly (`PAUSED_FOR_USER` / `PAUSED_AT_CHECKPOINT`) immediately after the specified stage and its gate complete. Defaults to `analyze` (pauses before `implement`) unless `--continue` or `--resume` is specified. |
 | `--from=<stage>` | `--from=specify\|clarify\|plan\|tasks\|analyze\|implement\|converge` | Auto-detect | Forces execution to start at `<stage>`, regenerating its artifacts even if they already exist on disk. |
-| `--resume` | Boolean flag | `false` | Explicitly resumes an existing feature in `.specify/feature.json` from the first incomplete stage (default behavior when invoked with no flags on an existing feature). |
+| `--resume` | Boolean flag | `false` | Explicitly resumes an existing feature in `.specify/feature.json` from the first incomplete stage. When resuming past the pre-implementation checkpoint (`analyze` complete, `implement` pending), proceeds through `implement` and `converge`. |
 | `--clarify` | Boolean flag | `false` | Forces the `Clarify Gate` to run a full `speckit-clarify` ambiguity scan subagent even if `spec.md` has 0 `[NEEDS CLARIFICATION]` markers. |
 | `--model=<tier>` | `--model=inherit\|pro\|flash\|flash_lite` | Role-based | Overrides the resolved subagent model tier for all stages in this invocation. |
 | `--override-ceiling` | Boolean flag | `false` | Allows `speckit-reasoner` to escalate to `pro`/`opus` even when the user's active session model is `flash`/`sonnet`. |

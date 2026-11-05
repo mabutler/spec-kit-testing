@@ -54,7 +54,7 @@ Represents the resolved runtime parameters and feature state at the start of `/s
 | `feature_description` | `string` | Conditional | Required if `.specify/feature.json` / `SPECIFY_FEATURE_DIRECTORY/spec.md` does not exist. |
 | `feature_directory` | `string` (path) | Yes | Resolved via `SPECIFY_FEATURE_DIRECTORY` or `.specify/feature.json` (`feature_directory`). Must resolve to an existing directory under repo root (or be created by Stage 1 `specify`). |
 | `from_stage` | `enum` | No | Optional stage name (`specify`, `clarify`, `plan`, `tasks`, `analyze`, `implement`, `converge`) forcing regeneration from that stage onward. |
-| `until_stage` | `enum` | No | Optional stopping stage (`clarify`, `plan`, `tasks`, `analyze`, `implement`, `converge`). Note: `--pause-before-implement` is an alias for `--until=analyze`. |
+| `until_stage` | `enum` | No | Optional stopping stage (`clarify`, `plan`, `tasks`, `analyze`, `implement`, `converge`). Defaults to `analyze` (pausing before implement) unless `--continue` / `--continuous` or `--resume` is specified. |
 | `force_clarify` | `boolean` | Yes | Defaults to `false`; `true` when `--clarify` is passed. |
 | `session_model_tier` | `enum` | Yes | Detected active session model tier: `"high_reasoning"` (e.g., Gemini Argon/Pro, Claude Opus) or `"standard_execution"` (e.g., Gemini Flash/Flash Lite, Claude Sonnet/Haiku). |
 | `override_ceiling` | `boolean` | Yes | Defaults to `false`; `true` if `--override-ceiling` passed in `$ARGUMENTS` or set in resolved `.agents/agents/*.local.md`. |
@@ -86,7 +86,7 @@ Captures the deterministic evaluation outcome after a gate or stage execution.
 - `SKIPPED_EXISTING`: Valid output artifact already exists on disk and regeneration was not requested.
 - `PASSED`: Stage and its associated quality gate succeeded with 0 blocking issues.
 - `SELF_HEALED`: `Analyze & Self-Heal Gate` detected `MEDIUM`/`LOW` drift, remediated `plan.md`/`tasks.md` within ≤ 2 passes, and re-verified clean analysis.
-- `PAUSED_FOR_USER`: Pipeline halted cleanly at a human checkpoint (`Clarify Gate` with open questions, or user-requested `--until=<stage>` / `--pause-before-implement`).
+- `PAUSED_FOR_USER`: Pipeline halted cleanly at a human checkpoint (`Clarify Gate` with open questions, default pre-implementation checkpoint before `implement`, or user-requested `--until=<stage>`).
 - `FAILED_CLOSED`: Pipeline halted immediately due to a subagent error, missing required output artifact, `CRITICAL`/`HIGH` analysis finding, or exceeding a bounded retry ceiling (2 self-heal passes or 3 convergence passes).
 
 ### State Transition Diagram
@@ -105,8 +105,8 @@ stateDiagram-v2
     AnalyzeGate --> SelfHealPass: MEDIUM/LOW drift only & heal_count < 2
     SelfHealPass --> AnalyzeGate: plan.md / tasks.md aligned (heal_count++)
     AnalyzeGate --> FailedClosed: CRITICAL/HIGH finding or heal_count == 2 with drift
-    AnalyzeGate --> PausedForUser: --pause-before-implement or --until=analyze
-    AnalyzeGate --> ImplementStage: 0 findings & autopilot active
+    AnalyzeGate --> PausedForUser: Default (no --continue) or --until=analyze
+    AnalyzeGate --> ImplementStage: 0 findings & --continue / --resume active
     ImplementStage --> ConvergeGate: All tasks [x] in tasks.md
     ConvergeGate --> ImplementStage: tasks_appended & converge_count < 3 (escalate to reasoner)
     ConvergeGate --> FailedClosed: tasks_appended & converge_count == 3

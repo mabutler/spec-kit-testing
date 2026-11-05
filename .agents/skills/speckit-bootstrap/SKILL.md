@@ -99,7 +99,7 @@ Triggered when executed without `--upgrade` or `--check`:
          - extension: "speckit-orchestrator"
            command: "speckit.orchestrate"
            description: "Coordinate context-isolated subagents across clarify, plan, tasks, analyze, implement, and converge"
-           prompt: "Specification complete and validated. Run /speckit-orchestrate to launch the subagent-driven delivery pipeline (or /speckit-orchestrate --pause-before-implement to review plan and tasks before code changes)."
+           prompt: "Specification complete and validated. Run /speckit-orchestrate to run through design and tasks (pauses before implementation for review), or /speckit-orchestrate --continue to run continuously through the end."
            enabled: true
            optional: true
      ```

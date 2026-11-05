@@ -42,10 +42,12 @@ When running as a subagent or child process (`ORCHESTRATOR_CHILD=true`):
 ### 1. Argument Parsing & Runtime Scope Resolution
 
 Parse `$ARGUMENTS` for execution-scope flags, overrides, and free-form feature description:
-- `--pause-before-implement`: Alias for `--until=analyze`. Halts cleanly before code implementation.
-- `--until=<stage>`: Halts cleanly immediately after `<stage>` completes (`clarify`, `plan`, `tasks`, `analyze`, `implement`, `converge`).
+- **Default Checkpoint Policy**: Pauses cleanly after `analyze` before code implementation (`implement`), allowing human review of `plan.md` and `tasks.md`.
+- `--continue` / `--continuous` (aliases: `--no-pause`, `--auto-implement`): Bypasses the pre-implementation pause, running continuously through the end (`converge`). Equivalent to `--until=converge`.
+- `--pause-before-implement`: Explicit alias for default behavior (halts cleanly after `analyze` before `implement`). Retained for backward compatibility.
+- `--until=<stage>`: Halts cleanly immediately after `<stage>` completes (`clarify`, `plan`, `tasks`, `analyze`, `implement`, `converge`). Defaults to `analyze` (pausing before implement) unless `--continue`/`--continuous` or `--resume` is specified.
 - `--from=<stage>`: Forces execution to start at `<stage>` (`specify`, `clarify`, `plan`, `tasks`, `analyze`, `implement`, `converge`), regenerating artifacts even if they exist.
-- `--resume`: Resumes from the first incomplete stage on an existing feature.
+- `--resume`: Resumes from the first incomplete stage on an existing feature. When resuming after the pre-implementation pause (`analyze` complete, `implement` pending), resumes directly into Stage 6 (`implement`) and runs through `converge` (unless constrained by `--until=<stage>`).
 - `--clarify`: Forces full `speckit-clarify` subagent pass even if `[NEEDS CLARIFICATION]` marker count is 0.
 - `--model=<tier>`: Explicit subagent model override (`inherit`, `pro`, `flash`, `flash_lite`, `opus`, `sonnet`).
 - `--override-ceiling`: Allows escalating subagents to high-reasoning models (`pro`, `opus`) even when session ceiling is standard (`flash`, `sonnet`).
@@ -190,9 +192,13 @@ Execute stages sequentially under single-writer serialization:
       - **FAIL CLOSED** (`FAILED_CLOSED`). Halt and report unresolved drift.
   - If findings == 0:
     - Mark gate `PASSED` (or `SELF_HEALED` if remediated).
-- Check `--pause-before-implement` or `--until=analyze`:
-  - If true: **PAUSE FOR USER** (`PAUSED_AT_CHECKPOINT`).
-    Instruct user to review `plan.md` and `tasks.md`, then resume with `/speckit-orchestrate --resume`.
+- **Pre-Implementation Checkpoint (Default)**:
+  - Check whether to halt before Stage 6 (`implement`):
+    - If `--continue` / `--continuous` / `--no-pause` / `--auto-implement` is passed, OR `--until=implement` or `--until=converge` was explicitly specified, OR execution was triggered via `--resume`:
+      - Proceed to Stage 6: `implement`.
+    - Otherwise (Default behavior, or if `--pause-before-implement` or `--until=analyze` was passed):
+      - **PAUSE FOR USER** (`PAUSED_AT_CHECKPOINT`).
+      - Instruct user to review `plan.md` and `tasks.md`, then resume with `/speckit-orchestrate --resume` (or `/speckit-orchestrate --continue`).
 
 #### Stage 6: Implement
 - **Agent**: `speckit-executor` (`execution` for pass 1) / `speckit-reasoner` (`reasoning` for retries 2..3)

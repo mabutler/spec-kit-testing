@@ -91,21 +91,21 @@ echo "PASS: Constitutional Pre-PR gate and Principle III static verification pas
 
 ## 2. End-to-End Orchestration Validation Scenarios
 
-### Scenario A: Full Autopilot Resume on Existing Feature (`US1`)
-- **Invoke**: `/speckit-orchestrate`
+### Scenario A: Default Pre-Implementation Human Checkpoint (`US2`)
+- **Invoke**: `/speckit-orchestrate` (or `/speckit-orchestrate --pause-before-implement`)
 - **Expected Behavior**:
   1. Reads `.specify/feature.json` (`specs/003-subagent-orchestrator`).
   2. Sees `spec.md` and `plan.md` already exist and pass validation (`Specify = SKIPPED_EXISTING`, `Clarify Gate = PASSED`, `Plan = SKIPPED_EXISTING`).
   3. Dispatches `speckit-tasks` subagent via `speckit-executor` (stepped down to `Flash` when session is on `Argon`/`Pro`, or capped at session ceiling).
-  4. Dispatches `speckit-analyze` subagent via `speckit-reasoner` (`Analyze & Self-Heal Gate`).
-  5. Dispatches `speckit-implement` subagent via `speckit-executor` and verifies completion via `speckit-converge` (`speckit-reasoner`).
-  6. Outputs the `Pipeline Execution Summary` table with overall status `CONVERGED`.
+  4. Dispatches `speckit-analyze` subagent via `speckit-reasoner` (`Analyze & Self-Heal Gate`, performing up to 2 self-heal passes if `MEDIUM`/`LOW` drift is found).
+  5. By default, halts cleanly before `speckit-implement` with status `PAUSED_AT_CHECKPOINT` and instructs the user to run `/speckit-orchestrate --resume` (or `/speckit-orchestrate --continue`) after reviewing `plan.md` and `tasks.md`.
 
-### Scenario B: Pre-Implementation Human Checkpoint (`US2`)
-- **Invoke**: `/speckit-orchestrate --pause-before-implement` (or `/speckit-orchestrate --until=analyze`)
+### Scenario B: Continuous Autopilot Execution through the End (`US1`)
+- **Invoke**: `/speckit-orchestrate --continue` (or `/speckit-orchestrate --continuous`)
 - **Expected Behavior**:
-  1. Executes pending design stages through `speckit-analyze` (performing up to 2 self-heal passes if `MEDIUM`/`LOW` drift is found).
-  2. Halts cleanly before `speckit-implement` with status `PAUSED_AT_CHECKPOINT` and instructs the user to run `/speckit-orchestrate --resume` after reviewing `plan.md` and `tasks.md`.
+  1. Runs through all stages without pausing before implementation.
+  2. Dispatches `speckit-implement` subagent via `speckit-executor` and verifies completion via `speckit-converge` (`speckit-reasoner`).
+  3. Outputs the `Pipeline Execution Summary` table with overall status `CONVERGED`.
 
 ### Scenario C: Local Agent Override Resolution (`US3`)
 - **Setup**: Create `.agents/agents/speckit-executor.local.md` (gitignored) setting a custom model tier or prompt note.
