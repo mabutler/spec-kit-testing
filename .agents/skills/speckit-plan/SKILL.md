@@ -70,7 +70,8 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 3. **Execute plan workflow**: Follow the structure in IMPL_PLAN template to:
    - Fill Technical Context (use `.specify/memory/coding-standards.md` and `.specify/memory/logging-standards.md` when present to populate stack-specific defaults for language/runtime, build/linter commands, test runner, and logging framework; mark unknowns as "NEEDS CLARIFICATION")
-   - Fill Constitution Check section from `.specify/memory/constitution.md` (including Principle III test justifications / skip allowlist exemptions) and check alignment against `.specify/memory/coding-standards.md` and `.specify/memory/logging-standards.md`
+   - Populate `**Documentation Impact**` in Technical Context by classifying the feature as either `USER_FACING` (naming the exact human-facing documentation files such as `README.md` or user guides to create/update per `.specify/memory/coding-standards.md` `[HUMAN_DOCS_CONVENTIONS]` or baseline Principle VII) or `INTERNAL_ONLY` (providing a concrete rationale why no user-visible commands, skills, APIs, configuration options, or workflows change). If `.specify/memory/coding-standards.md` predates Phase 6 and lacks a Human-Facing Documentation section, fall back gracefully to the baseline Principle VII rule.
+   - Fill Constitution Check section from `.specify/memory/constitution.md` (including Principle III test justifications / skip allowlist exemptions and Principle VII human-facing documentation alignment) and check alignment against `.specify/memory/coding-standards.md` and `.specify/memory/logging-standards.md`
    - Evaluate gates (ERROR if violations unjustified)
    - Phase 0: Generate research.md (resolve all NEEDS CLARIFICATION)
    - Phase 1: Generate data-model.md, contracts/, quickstart.md

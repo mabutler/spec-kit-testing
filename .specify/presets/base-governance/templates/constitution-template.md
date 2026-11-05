@@ -113,8 +113,15 @@ Title: AOT / Trim-Safe Shared Libraries
 ### VII. Code Hygiene, Ubiquitous Language & Safe Logging
 - **Zero Warnings & Read-Only Vendored Code**: The build treats warnings as errors, and all code/scripts MUST pass configured linters. Vendored third-party code and generated schema files MUST NOT be edited or reformatted in place.
 - **Ubiquitous Language**: Code identifiers, UI screens, CLI tools, and documentation share one domain vocabulary; changes MUST NOT introduce a synonym for an existing concept.
-- **Present-Tense, High-Signal Comments & Docs**: Comments MUST explain the current implementation and *why* it is built that way—never narrate git or session history. Comments SHOULD document rejected alternatives only when needed to stop a developer from reintroducing a known defect via a naive refactor. Documentation MUST match actual implemented behavior and be updated in the same change.
+- **Present-Tense, High-Signal Comments & Docs**: Comments MUST explain the current implementation and *why* it is built that way—never narrate git or session history. Comments SHOULD document rejected alternatives only when needed to stop a developer from reintroducing a known defect via a naive refactor. Internal architectural documentation and human-facing documentation (`README.md`, quickstarts, and user guides) MUST match actual implemented behavior and be updated in the same change whenever user-visible CLI commands, agent skills, public APIs, configuration options, or end-user workflows are added, removed, or modified; purely internal changes (`INTERNAL_ONLY` refactors, non-behavioral fixes, or internal tooling) are exempt from artificial `README.md` edits.
 - **Structured, Safe Logging**: Logs MUST use structured templates and strictly separate lifecycle milestones, diagnostic reasoning, recoverable boundary rejections, and fatal invariant crashes according to the severity taxonomy defined in `.specify/memory/logging-standards.md` / `docs/logging.md`. Logs and operator-visible errors MUST NEVER output secrets, private keys, credentials, raw PII, or bearer financial instruments.
+<!-- OPTIONAL-MODULE: MODULE-DOCS
+Action: ADD
+Title: Structured Human-Facing Documentation Gate
+Target: Principle VII
+-->
+- **Structured Human-Facing Documentation Gate**: The repository root `README.md` (and any dedicated user guide under `docs/`) MUST maintain canonical sections covering Project Overview & Architecture, Getting Started / Bootstrap Quickstart, CLI / Skill / API Usage Reference, and Configuration & Governance Verification, verified for relative link integrity and command accuracy before merge.
+<!-- /OPTIONAL-MODULE: MODULE-DOCS -->
 
 ## Development Workflow & Quality Gates
 

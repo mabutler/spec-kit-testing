@@ -78,6 +78,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - If data-model.md exists: Extract entities and map to user stories
    - If contracts/ exists: Map interface contracts to user stories
    - If research.md exists: Extract decisions for setup tasks
+   - Inspect `Documentation Impact` in `plan.md` (and user stories in `spec.md`) alongside `.specify/memory/constitution.md` Principle VII and `.specify/memory/coding-standards.md` (falling back gracefully if `coding-standards.md` lacks the Phase 6 section). When `Documentation Impact` is `USER_FACING` (or a user story modifies user-visible CLI commands, skills, APIs, configuration options, or workflows), generate explicit task(s) with exact file paths (e.g., `- [ ] TXXX [USX] Update human-facing documentation in README.md`) in the corresponding User Story phase or Polish phase. When `Documentation Impact` is `INTERNAL_ONLY` with a valid exemption rationale, do not generate redundant `README.md` edit tasks.
    - Ensure generated tasks honor compile-time boundary rules, canonical error result types, testing conventions, and structured logging rules defined in the governance suite (`.specify/memory/constitution.md`, `.specify/memory/coding-standards.md`, `.specify/memory/logging-standards.md`)
    - Generate tasks organized by user story (see Task Generation Rules below)
    - Generate dependency graph showing user story completion order
@@ -209,6 +210,11 @@ Every task MUST strictly follow this format:
    - Shared infrastructure → Setup phase (Phase 1)
    - Foundational/blocking tasks → Foundational phase (Phase 2)
    - Story-specific setup → within that story's phase
+
+5. **From Documentation Impact & Governance**:
+   - Inspect `Documentation Impact` in `plan.md`:
+     - If `USER_FACING`: generate explicit task(s) with exact file paths (e.g., `README.md`, `docs/`) in the corresponding User Story phase or Polish phase.
+     - If `INTERNAL_ONLY`: do not generate artificial `README.md` edit tasks.
 
 ### Phase Structure
 

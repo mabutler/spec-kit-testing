@@ -4,13 +4,13 @@
   "installed_at": "2026-11-05T12:00:00+00:00",
   "files": {
     ".specify/templates/checklist-template.md": "85aff7c63f600aaf4996f90b91d113b5bb00291d44867b5a19503b9fefff2268",
-    ".specify/templates/coding-standards-template.md": "1a05b3d9841cad4f87853f180db4c8a9be2902a7e9e5f6afc8a71a9e8cf606f6",
-    ".specify/templates/constitution-template.md": "e7603c5ed5f7e952c143c7a1519559ae2d391744d73ddbd24e3c9e7ffcc61a19",
+    ".specify/templates/coding-standards-template.md": "44e55ee858aff279fab8b09e9bfbd656ef67b41c08428fd0721a6d8f2dededd7",
+    ".specify/templates/constitution-template.md": "81b423266ed16bb5cf87c425d39a03a8e7579d7419917f90163b74d1b530c00a",
     ".specify/templates/logging-standards-template.md": "3d25c07d290403336557b2fc0ded22fce771a4acf2746f7f5249762240796b5f",
-    ".specify/templates/plan-template.md": "3ad54b693d26f7cee0c158e811be191902a79543fc46650bacb62b4448252e6a",
+    ".specify/templates/plan-template.md": "9d927ea14308eb008fb61faab6bbcc5c5136b84e36102458afc6ab347474f724",
     ".specify/templates/roadmap-template.md": "50c19f8a75298ad3825a7d0af2764f6792643916fcfeaf3f7c224ee4ab7a83cc",
     ".specify/templates/spec-template.md": "ef73b63c629d0a99c003d7a0fe1ccb4f98c227cedccb56c9313422e934e3569a",
-    ".specify/templates/tasks-template.md": "cf022b5625805513a272a521ba72c1a72c6f01f5b864c1d196deade272f61cba",
+    ".specify/templates/tasks-template.md": "f2d1b7652cd242abd495b5c839dd8fa297783f10f01ffabc8845d5df49c4ad74",
     ".specify/.gitignore": "0a61c5378b0bb2e0f85babff99c8b166f2170a2c12378cd17d929aa19296ec88"
   }
 }

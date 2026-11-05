@@ -59,3 +59,12 @@ Operationalizes Constitutional Principle III (*Static Verification & No Automate
 Operationalizes Constitutional Principle VII (*Code Hygiene & Ubiquitous Language*):
 
 - **Identifier & Code Style Conventions**: kebab-case for skill directory names and shell script filenames; UPPER_SNAKE_CASE for shell environment variables and constants; present-tense, high-signal comments explaining why decisions were made.
+
+---
+
+## Human-Facing Documentation & README Conventions
+
+Operationalizes Constitutional Principle VII (*Code Hygiene, Ubiquitous Language & Safe Logging*):
+
+- **Human-Facing Documentation & README Structure**: The repository root `README.md` serves as the primary human-facing onboarding and usage reference and MUST maintain four canonical sections: (1) Project Overview & 4-Tier Architecture, (2) Co-Applied Governance Suite, (3) Spec Kit Skills & Subagent Orchestration Reference, and (4) Portable Bootstrapping & Verification Quickstart. Any change classified as `USER_FACING` in `plan.md` (adding, removing, or altering skills in `.agents/skills/`, bootstrapper flags in `bootstrap-speckit.{sh,ps1}`, template contracts in `.specify/templates/`, or governance rules) MUST update `README.md` (and `ROADMAP.md` when phase scope changes) in the same pull request. Changes classified as `INTERNAL_ONLY` with an explicit justification in `plan.md` are exempt from artificial `README.md` edits. Human-facing documentation MUST use valid repository-relative links and MUST NEVER cite ephemeral `specs/NNN-*/` directories or `FR-XXX` / `SC-XXX` identifiers.
+

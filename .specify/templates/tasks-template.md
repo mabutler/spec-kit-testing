@@ -24,6 +24,8 @@ Context is discovered via SPECIFY_FEATURE_DIRECTORY env variable or .specify/fea
 
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
+**Documentation Impact**: When `Documentation Impact` in `plan.md` is `USER_FACING`, human-facing documentation tasks (`README.md`, user guides) MUST be generated with exact file paths in the relevant User Story phase or Polish phase. When `INTERNAL_ONLY`, artificial `README.md` tasks are omitted so internal refactors incur zero documentation churn.
+
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
@@ -166,7 +168,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] TXXX [P] Documentation updates in docs/
+- [ ] TXXX [P] Human-facing documentation updates (e.g., `README.md`, docs/) when `Documentation Impact` is `USER_FACING` (omitted if `INTERNAL_ONLY`)
 - [ ] TXXX Code cleanup and refactoring
 - [ ] TXXX Performance optimization across all stories
 - [ ] TXXX [P] Additional unit tests (if requested) in tests/unit/

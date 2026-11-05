@@ -16,7 +16,7 @@ This roadmap organizes planned strategic initiatives into sequential, self-conta
 | **Phase 3** | **Subagent-Driven Spec Kit Orchestrator** | `COMPLETED` | Phase 1, Phase 2 | `specs/003-subagent-orchestrator/` | Kick off an intelligent multi-agent pipeline starting from `specify` (or an autopilot entry point) that drives `clarify` → `plan` → `tasks` → `analyze` → `implement`. | Orchestrator skill / `after_specify` hook using subagents |
 | **Phase 4** | **Portable Project Bootstrapper** | `COMPLETED` | Phase 1, Phase 2, Phase 3 | `specs/004-portable-project-bootstrapper/` | Package Phases 1–3 so they can be rapidly installed and initialized in any new or existing repository. | Preset/extension bundle + bootstrap installer script/command |
 | **Phase 5** | **Roadmap Management (`speckit-roadmap`)** | `COMPLETED` | Phase 1, Phase 2, Phase 3, Phase 4 | `specs/005-roadmap-management/` | Establish a dedicated workflow, template, and agent skill to author, visualize, and incrementally maintain project-level roadmaps that feed into Spec Kit feature specifications. | `roadmap-template.md`, `.agents/skills/speckit-roadmap/SKILL.md`, sync/status tracking CLI scripts |
-| **Phase 6** | **Human-Facing Documentation Standards & Governance** | `PLANNED` | Phase 1, Phase 2, Phase 4 | — | Introduce explicit constitutional principles, template standards, and quality gates for authoring and maintaining human-readable documentation (`README.md`, user guides, quickstarts) alongside code changes. | Updated `constitution-template.md`, amended project `.specify/memory/constitution.md`, documentation gates in Spec Kit skills |
+| **Phase 6** | **Human-Facing Documentation Standards & Governance** | `COMPLETED` | Phase 1, Phase 2, Phase 4 | `specs/006-human-docs-governance/` | Introduce explicit constitutional principles, template standards, and quality gates for authoring and maintaining human-readable documentation (`README.md`, user guides, quickstarts) alongside code changes. | Updated `constitution-template.md`, amended project `.specify/memory/constitution.md`, documentation gates in Spec Kit skills |
 
 ---
 
@@ -183,9 +183,9 @@ Spec Kit features currently begin at `speckit-specify` (`spec.md`), but projects
 ## Phase 6: Human-Facing Documentation Standards & Governance
 
 ### Metadata
-- **Status**: `PLANNED`
+- **Status**: `COMPLETED`
 - **Prerequisites**: Phase 1, Phase 2, Phase 4
-- **Spec Directory**: —
+- **Spec Directory**: `specs/006-human-docs-governance/`
 
 ### Problem Statement
 The current project constitution (`.specify/memory/constitution.md`) and base constitution templates focus heavily on internal architectural contracts (`Architecture.md`), machine/agent epistemic authority, and in-code comments explaining "why." However:

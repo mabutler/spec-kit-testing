@@ -51,11 +51,13 @@ Context is discovered via SPECIFY_FEATURE_DIRECTORY env variable or .specify/fea
 
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
+**Documentation Impact**: [USER_FACING (list affected human-facing docs, e.g., README.md, docs/...) or INTERNAL_ONLY (1-sentence rationale why no user-visible CLI, skill, API, config, or workflow changes occur)]
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+[Gates determined based on constitution file; evaluate Principle VII human-facing documentation impact (USER_FACING target files vs. INTERNAL_ONLY exemption rationale) alongside testing and architectural gates before Phase 0 and re-check after Phase 1]
 
 ## Project Structure
 

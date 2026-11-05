@@ -98,6 +98,7 @@ Evaluate module activation states (`ENABLED` or `OMITTED`) for:
 - `MODULE-C` (Dispatch Is Data, Not Branches, Target: Principle IV)
 - `MODULE-D` (Reproducible Builds & Deliberate Versioning, Target: Principle V)
 - `MODULE-D-AOT-TRIM` (Subclause of `MODULE-D`: AOT/Trim-Safe Core Domain Logic)
+- `MODULE-DOCS` (Structured Human-Facing Documentation Gate, Target: Principle VII)
 - `logging_trace` (Mechanical TRACE Entry/Exit Logging in `logging-standards.md`)
 
 **Activation Precedence**:
@@ -122,14 +123,17 @@ Transform the resolved `constitution-template` content according to active modul
   - If `module_d == ENABLED`: Strip opening/closing tags for `MODULE-D` and keep `- **Reproducible Builds & Deliberate Versioning**: ...` in Principle V.
   - If `module_d == ENABLED` and `module_d_aot_trim == ENABLED`: The surrounding `[Optional: ...]` brackets MUST be unwrapped so the sentence reads as normative prose (`Shared libraries consumed by constrained environments SHOULD be AOT/trim-safe...`), and strip `<!-- OPTIONAL-SUBCLAUSE: MODULE-D-AOT-TRIM ... -->` tags.
   - If `module_d == ENABLED` and `module_d_aot_trim == OMITTED`: Remove the opening subclause tag, the inner `[Optional: ...]` text, and closing subclause tag completely.
+- **`MODULE-DOCS`**:
+  - If `ENABLED`: Strip opening `<!-- OPTIONAL-MODULE: MODULE-DOCS ... -->` and closing `<!-- /OPTIONAL-MODULE: MODULE-DOCS -->` comment lines; keep `- **Structured Human-Facing Documentation Gate**: ...` inline in Principle VII.
+  - If `OMITTED`: Remove the entire block including opening tag, body text, and closing tag.
 - **Strip All Residual Markers**: Strip all `OPTIONAL-MODULE`, `OPTIONAL-SUBCLAUSE`, and `DEFAULT-CLAUSE` HTML comment lines.
 
 ### 4. Placeholder Value Merge & Project Identity Synchronization
 
-Discover and substitute all 25 `[ALL_CAPS_IDENTIFIER]` slots:
+Discover and substitute all 26 `[ALL_CAPS_IDENTIFIER]` slots:
 - **`constitution.md` (8 slots)**: `[PROJECT_NAME]`, `[PRIMARY_SOURCE]`, `[SECONDARY_SOURCE]`, `[TERTIARY_SOURCE]`, `[ACCEPTANCE_GATE_COMMANDS]`, `[CONSTITUTION_VERSION]`, `[RATIFICATION_DATE]`, `[LAST_AMENDED_DATE]`
-- **`coding-standards.md` (11 slots)**: `[PROJECT_NAME]`, `[PRIMARY_LANGUAGE_AND_RUNTIME]`, `[STYLE_GUIDE_AND_LINTER]`, `[LINE_LENGTH_AND_SPACING]`, `[NAMING_CONVENTIONS]`, `[ERROR_RESULT_TYPE]`, `[MUTATION_CONVENTIONS]`, `[FILE_ORGANIZATION]`, `[PROHIBITED_DEPENDENCIES]`, `[TEST_RUNNER_AND_FRAMEWORK]`, `[COVERAGE_TOOL_AND_MINIMUM]`
-- **`logging-standards.md` (6 slots)**: `[PROJECT_NAME]`, `[LOGGING_FRAMEWORK]`, `[LOG_PAYLOAD_FORMAT]`, `[LOG_CONTEXT_KEY_CASING]`, `[RETENTION_AND_SAMPLING_POLICY]`, `[TRACING_PROPAGATION_STANDARD]`
+- **`coding-standards.md` (12 slots)**: `[PROJECT_NAME]`, `[PRIMARY_LANGUAGE_AND_RUNTIME]`, `[BUILD_AND_LINTER_COMMANDS]`, `[DEPENDENCY_AND_LOCKFILE_CONVENTIONS]`, `[PROJECT_STRUCTURE_CONVENTIONS]`, `[BOUNDARY_ENFORCEMENT_MECHANISM]`, `[ERROR_RESULT_TYPES]`, `[DEFECT_INVARIANT_MECHANISM]`, `[IMMUTABLE_SNAPSHOT_AND_ID_CONVENTIONS]`, `[TEST_FRAMEWORK_CONVENTIONS]`, `[NAMING_CONVENTIONS]`, `[HUMAN_DOCS_CONVENTIONS]`
+- **`logging-standards.md` (6 slots)**: `[PROJECT_NAME]`, `[LOGGING_FRAMEWORK]`, `[LOG_SINKS_AND_FORMATS]`, `[CORRELATION_ID_SCHEMA]`, `[SENSITIVE_DATA_REDACTION_MECHANISM]`, `[RETENTION_AND_SAMPLING_POLICY]`
 
 **Substitution Rules**:
 1. **Project Name Synchronization**: `project_name` (`[PROJECT_NAME]`): Non-empty string; MUST be identical across the H1 headers (`# <project_name> Constitution`, `# <project_name> Coding Standards`, `# <project_name> Logging Standards`) and inline project references in all three files.
@@ -172,7 +176,7 @@ Sync Impact Report (Latest Amendment Only — Do Not Accumulate History):
 - Version Change: <old_version> -> <new_version>
 - Modified Principles: <summary of principle changes or "None (preserved Principles I–VII)">
 - Modified Sections: <list of modified sections>
-- Optional Modules: MODULE-A: <ENABLED|OMITTED>, MODULE-B: <ENABLED|OMITTED>, MODULE-C: <ENABLED|OMITTED>, MODULE-D: <ENABLED|OMITTED> (MODULE-D-AOT-TRIM: <ENABLED|OMITTED>), TRACE Logging: <ENABLED|OMITTED>
+- Optional Modules: MODULE-A: <ENABLED|OMITTED>, MODULE-B: <ENABLED|OMITTED>, MODULE-C: <ENABLED|OMITTED>, MODULE-D: <ENABLED|OMITTED> (MODULE-D-AOT-TRIM: <ENABLED|OMITTED>), MODULE-DOCS: <ENABLED|OMITTED>, TRACE Logging: <ENABLED|OMITTED>
 - Companion Standards: coding-standards.md (<created|updated|unchanged>), logging-standards.md (<created|updated|unchanged>)
 - Rationale: <concise rationale for initialization or amendment>
 - Deferred TODOs: <None or list of TODO(FIELD_NAME) items>

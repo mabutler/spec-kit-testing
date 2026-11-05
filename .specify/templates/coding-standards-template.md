@@ -80,3 +80,14 @@ Operationalizes Constitutional Principle VII (*Code Hygiene & Ubiquitous Languag
 
 - **Identifier & Code Style Conventions**: [NAMING_CONVENTIONS]
   <!-- Example: PascalCase for types/methods, camelCase for parameters/locals, or snake_case per language standard; present-tense "why" comments -->
+
+---
+
+## Human-Facing Documentation & README Conventions
+
+Operationalizes Constitutional Principle VII (*Code Hygiene, Ubiquitous Language & Safe Logging*):
+
+- **Human-Facing Documentation & README Structure**: [HUMAN_DOCS_CONVENTIONS]
+  <!-- Example (CLI / Agent / Skill Framework): Root README.md documents project overview, governance suite, CLI/skill reference, and quickstart commands; updated in the same PR for any USER_FACING change while INTERNAL_ONLY changes are exempt -->
+  <!-- Example (Library / SDK / Web Service): Root README.md and docs/ maintain installation, public API/endpoint usage, configuration options, and migration notes without referencing ephemeral specs/NNN-*/ paths -->
+

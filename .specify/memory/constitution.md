@@ -1,11 +1,11 @@
 <!--
 Sync Impact Report (Latest Amendment Only — Do Not Accumulate History):
-- Version Change: 1.0.0 -> 2.0.0
-- Modified Principles: Principle III weakened/redefined per explicit human authority to eliminate automated test generation requirements in favor of static verification.
-- Modified Sections: Core Principles (Principle III), Development Workflow & Quality Gates, Recorded Deviations
-- Optional Modules: MODULE-A: OMITTED, MODULE-B: OMITTED, MODULE-C: OMITTED, MODULE-D: OMITTED (MODULE-D-AOT-TRIM: OMITTED), TRACE Logging: OMITTED
-- Companion Standards: coding-standards.md (updated), logging-standards.md (updated)
-- Rationale: Explicit human authority directive to weaken/redefine Core Principle III to disallow automated test generation across the project.
+- Version Change: 2.0.0 -> 2.1.0
+- Modified Principles: Principle VII expanded with baseline Human-Facing Documentation Synchronization rule and enabled MODULE-DOCS (Structured Human-Facing Documentation Gate).
+- Modified Sections: Core Principles (Principle VII), Development Workflow & Quality Gates, Governance
+- Optional Modules: MODULE-A: OMITTED, MODULE-B: OMITTED, MODULE-C: OMITTED, MODULE-D: OMITTED (MODULE-D-AOT-TRIM: OMITTED), MODULE-DOCS: ENABLED, TRACE Logging: OMITTED
+- Companion Standards: coding-standards.md (updated), logging-standards.md (unchanged)
+- Rationale: Ratify Phase 6 Human-Facing Documentation Standards & Governance across the active repository governance suite and establish canonical root README.md requirements.
 - Deferred TODOs: None
 -->
 
@@ -59,8 +59,9 @@ This project does not generate, require, or maintain automated test suites. All 
 ### VII. Code Hygiene, Ubiquitous Language & Safe Logging
 - **Zero Warnings & Read-Only Vendored Code**: The build treats warnings as errors, and all code/scripts MUST pass configured linters. Vendored third-party code and generated schema files MUST NOT be edited or reformatted in place.
 - **Ubiquitous Language**: Code identifiers, UI screens, CLI tools, and documentation share one domain vocabulary; changes MUST NOT introduce a synonym for an existing concept.
-- **Present-Tense, High-Signal Comments & Docs**: Comments MUST explain the current implementation and *why* it is built that way—never narrate git or session history. Comments SHOULD document rejected alternatives only when needed to stop a developer from reintroducing a known defect via a naive refactor. Documentation MUST match actual implemented behavior and be updated in the same change.
+- **Present-Tense, High-Signal Comments & Docs**: Comments MUST explain the current implementation and *why* it is built that way—never narrate git or session history. Comments SHOULD document rejected alternatives only when needed to stop a developer from reintroducing a known defect via a naive refactor. Internal architectural documentation and human-facing documentation (`README.md`, quickstarts, and user guides) MUST match actual implemented behavior and be updated in the same change whenever user-visible CLI commands, agent skills, public APIs, configuration options, or end-user workflows are added, removed, or modified; purely internal changes (`INTERNAL_ONLY` refactors, non-behavioral fixes, or internal tooling) are exempt from artificial `README.md` edits.
 - **Structured, Safe Logging**: Logs MUST use structured templates and strictly separate lifecycle milestones, diagnostic reasoning, recoverable boundary rejections, and fatal invariant crashes according to the severity taxonomy defined in `.specify/memory/logging-standards.md` / `docs/logging.md`. Logs and operator-visible errors MUST NEVER output secrets, private keys, credentials, raw PII, or bearer financial instruments.
+- **Structured Human-Facing Documentation Gate**: The repository root `README.md` (and any dedicated user guide under `docs/`) MUST maintain canonical sections covering Project Overview & Architecture, Getting Started / Bootstrap Quickstart, CLI / Skill / API Usage Reference, and Configuration & Governance Verification, verified for relative link integrity and command accuracy before merge.
 
 ## Development Workflow & Quality Gates
 
@@ -87,4 +88,4 @@ Any ratified exception to a Core Principle MUST be recorded here with: (1) Princ
   Degrading a higher-ranked concern to serve a lower-ranked one requires human owner ratification and an entry under **Recorded Deviations**.
 - **Amendment & Versioning**: Amendments require explicit human approval, a rationale, and a Semantic Version bump (`MAJOR` for backward-incompatible principle removals/redefinitions; `MINOR` for new principles or expanded gates; `PATCH` for clarifications). Only the most recent amendment summary is kept in the top HTML sync comment.
 
-**Version**: 2.0.0 | **Ratified**: 2026-11-04 | **Last Amended**: 2026-11-04
+**Version**: 2.1.0 | **Ratified**: 2026-11-04 | **Last Amended**: 2026-11-05
