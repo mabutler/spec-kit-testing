@@ -9,11 +9,10 @@ Extensions for [GitHub Spec Kit](https://github.com/github/spec-kit) providing a
 Spec Kit formalizes software development through specification-driven workflows. This repository extends upstream [GitHub Spec Kit](https://github.com/github/spec-kit) with multi-agent orchestration, dynamic constitutional governance, and portable installation scripts, maintained with 100% byte parity across Google Antigravity ([`.agents/`](.agents/)) and Claude Code ([`.claude/`](.claude/)).
 
 Key additions in this repository:
-1. **Co-Applied Governance Suite**: Reusable base templates and active governance (`constitution.md`, `coding-standards.md`, `logging-standards.md`) packaged as the `base-governance` preset.
-2. **Multi-Agent Pipeline Orchestration**: Subagent coordination (`/speckit-orchestrate`) with dedicated reasoning and execution personas.
-3. **Dynamic Governance Verification**: Adapts upstream Spec Kit skills to dynamically query and obey active project rules (e.g. static verification vs. automated tests).
+1. **Multi-Agent Pipeline Orchestration**: Subagent coordination (`/speckit-orchestrate`) with dedicated reasoning and execution personas.
+2. **Roadmap Management**: Project-level milestone tracking through `/speckit-roadmap` and [`ROADMAP.md`](ROADMAP.md).
+3. **Co-Applied Governance Suite**: Reusable base templates and active governance (`constitution.md`, `coding-standards.md`, `logging-standards.md`) packaged as the `base-governance` preset.
 4. **Portable Bootstrapping**: Installer scripts (`bootstrap-speckit.sh`, `bootstrap-speckit.ps1`) and manifest verification (`/speckit-bootstrap`) to seed these extensions into any repository.
-5. **Roadmap Management**: Project-level milestone tracking through `/speckit-roadmap` and [`ROADMAP.md`](ROADMAP.md).
 
 ---
 
@@ -38,12 +37,8 @@ The multi-agent workflow coordinates context-isolated personas across [`.agents/
 ### Custom Skills
 
 - **`/speckit-orchestrate`**: Coordinates subagents sequentially through clarify, plan, tasks, analyze, implement, and converge with human approval gates.
-- **`/speckit-bootstrap`**: Verifies SHA-256 manifest integrity, detects configuration drift, and applies non-destructive template upgrades.
 - **`/speckit-roadmap`**: Authors, visualizes, audits, and syncs strategic feature milestones in [`ROADMAP.md`](ROADMAP.md) directly into feature specifications.
-
-### Core Pipeline Integration
-
-Standard upstream Spec Kit pipeline stages (`specify`, `plan`, `tasks`, and `implement`) are enhanced to dynamically query active project rules in `.specify/memory/constitution.md` and companion standards. Rather than assuming hardcoded testing conventions, subagents inspect the active constitution to enforce project-specific verification gates (e.g., automated test suites vs. declarative static verification).
+- **`/speckit-bootstrap`**: Verifies SHA-256 manifest integrity, detects configuration drift, and applies non-destructive template upgrades.
 
 ---
 
