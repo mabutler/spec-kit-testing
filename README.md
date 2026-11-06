@@ -1,136 +1,80 @@
 # Spec Kit Customizations
 
-Extensions for [GitHub Spec Kit](https://github.com/github/spec-kit) that add a project constitution, companion standards, multi-agent workflows, and bootstrap scripts.
+Extensions for [GitHub Spec Kit](https://github.com/github/spec-kit) providing a project constitution, companion standards, multi-agent orchestration, and portable bootstrapping scripts.
 
 ---
 
-## What's Added
+## Project Overview & Architecture
 
-GitHub's Spec Kit provides the core specification workflow (`spec.md` -> `plan.md` -> `tasks.md` -> implementation). This repository adds:
+Spec Kit formalizes software development through specification-driven workflows. This repository extends upstream [GitHub Spec Kit](https://github.com/github/spec-kit) with multi-agent orchestration, dynamic constitutional governance, and portable installation scripts, maintained with 100% byte parity across Google Antigravity ([`.agents/`](.agents/)) and Claude Code ([`.claude/`](.claude/)).
 
-1. **Constitution & Companion Standards**: A project constitution (`constitution.md`) defining core engineering rules, supported by stack-specific `coding-standards.md` and `logging-standards.md`.
-2. **Template Fallback System**: A 4-tier lookup (project overrides -> presets -> extensions -> defaults) so projects can customize templates or use presets (like `base-governance`).
-3. **Dual Support for Google Antigravity & Claude Code**: Agent skills and subagent definitions work in both `.agents/` and `.claude/`.
-4. **Subagents & Pipeline Orchestrator**: Dedicated reasoner and executor subagents coordinated through `/speckit-orchestrate`.
-5. **Dynamic Constitution Checks**: Subagent instructions read the active project's constitution to determine testing and verification requirements (e.g., whether unit tests or static verification are required) rather than assuming hardcoded defaults.
-6. **Installer Scripts**: Shell (`bootstrap-speckit.sh`) and PowerShell (`bootstrap-speckit.ps1`) scripts to seed these assets into any git repository.
-7. **Roadmap Tracking**: `/speckit-roadmap` to define and track feature phases in `ROADMAP.md`.
-
----
-
-## Constitution & Standards
-
-The project rules live in `.specify/memory/`. The constitution is the primary authority, and it references companion standards for coding and logging details:
-
-- [`.specify/memory/constitution.md`](.specify/memory/constitution.md): Core principles and development workflow rules (v2.2.0).
-- [`.specify/memory/coding-standards.md`](.specify/memory/coding-standards.md): Language conventions, error handling patterns, and documentation requirements.
-- [`.specify/memory/logging-standards.md`](.specify/memory/logging-standards.md): Log severity levels, structured format, and credential redaction.
-
-### Core Principles
-
-| Principle | Title | Mandate |
-|---|---|---|
-| **I** | **Evidence-Based Decisions & Bounded Research** | All requirements must trace to authoritative sources. No unverified assumptions or guessing. |
-| **II** | **Explicit Error Handling & Fail-Closed State** | Catch and return typed errors at boundaries; fail closed immediately on broken internal state. |
-| **III** | **Static Verification & Quality Gates** | Quality is verified through static analysis, linters, and checks (zero automated tests in this repo). |
-| **IV** | **State Ownership, Architectural Seams & Safe Concurrency** | Exactly one owning model per piece of state; core logic sits behind clean seams. |
-| **V** | **Centralized Dependencies & Toolchain Security** | Dependencies and toolchains are centrally locked. AI agents cannot add unapproved packages. |
-| **VI** | **Resource Ceilings & Safe State Mutation** | Set explicit limits on inputs, collections, and loops. Verify state before destructive actions. |
-| **VII** | **Code Standards, Consistent Terminology & Secure Logging** | Zero linter warnings; clear terminology; redact secrets from logs; keep docs up to date with code changes. |
-
-### Optional Modules
-
-The constitution template includes optional clauses that can be enabled per project:
-- **`MODULE-A`**: Pointer tags in code for open questions (`// OPEN-QUESTION: OQ-XXX`).
-- **`MODULE-B`**: 100% branch coverage gate (for projects requiring automated unit tests).
-- **`MODULE-C`**: Table-driven command dispatch.
-- **`MODULE-D`**: Reproducible builds and release versioning rules.
-- **`MODULE-DOCS`**: Gate requiring documentation updates whenever user-facing features change.
-- **`TRACE`**: Detailed function entry and exit logging.
+Key additions in this repository:
+1. **Co-Applied Governance Suite**: Reusable base templates and active governance (`constitution.md`, `coding-standards.md`, `logging-standards.md`) packaged as the `base-governance` preset.
+2. **Multi-Agent Pipeline Orchestration**: Subagent coordination (`/speckit-orchestrate`) with dedicated reasoning and execution personas.
+3. **Dynamic Governance Verification**: Adapts upstream Spec Kit skills to dynamically query and obey active project rules (e.g. static verification vs. automated tests).
+4. **Portable Bootstrapping**: Installer scripts (`bootstrap-speckit.sh`, `bootstrap-speckit.ps1`) and manifest verification (`/speckit-bootstrap`) to seed these extensions into any repository.
+5. **Roadmap Management**: Project-level milestone tracking through `/speckit-roadmap` and [`ROADMAP.md`](ROADMAP.md).
 
 ---
 
-## Subagents & Skills
+## Co-Applied Governance Suite
+
+Project governance is centralized in `.specify/memory/` and operationalized by AI subagents at every lifecycle stage:
+
+- [`.specify/memory/constitution.md`](.specify/memory/constitution.md): Core architectural principles (I–VII) defining evidence-based requirements, fail-closed state, static verification, single-ownership boundaries, toolchain security, resource ceilings, and documentation synchronization.
+- [`.specify/memory/coding-standards.md`](.specify/memory/coding-standards.md): Language conventions, error-handling patterns, static quality gates, and canonical README structure.
+- [`.specify/memory/logging-standards.md`](.specify/memory/logging-standards.md): Structured telemetry schemas, log severity hierarchies, and credential redaction rules.
+
+---
+
+## Spec Kit Skills & Subagent Orchestration Reference
 
 ### Subagent Personas
 
-Used by `/speckit-orchestrate` in Google Antigravity ([`.agents/agents/`](.agents/agents/)) and Claude Code ([`.claude/agents/`](.claude/agents/)):
+The multi-agent workflow coordinates context-isolated personas across [`.agents/agents/`](.agents/agents/) and [`.claude/agents/`](.claude/agents/):
+- **`speckit-reasoner`**: Focuses on architecture planning, requirements clarification, consistency analysis, and post-implementation convergence checks (`clarify`, `plan`, `analyze`, `converge`).
+- **`speckit-executor`**: Focuses on concise specification synthesis, actionable task decomposition, and code implementation (`specify`, `tasks`, `implement`).
 
-- **`speckit-reasoner`**: Handles architecture planning, requirements clarification, analysis, and convergence checks (`clarify`, `plan`, `analyze`, `converge`).
-- **`speckit-executor`**: Handles writing initial specs, task breakdowns, and code implementation (`specify`, `tasks`, `implement`).
+### Custom Skills
 
-### Skills Reference
+- **`/speckit-orchestrate`**: Coordinates subagents sequentially through clarify, plan, tasks, analyze, implement, and converge with human approval gates.
+- **`/speckit-bootstrap`**: Verifies SHA-256 manifest integrity, detects configuration drift, and applies non-destructive template upgrades.
+- **`/speckit-roadmap`**: Authors, visualizes, audits, and syncs strategic feature milestones in [`ROADMAP.md`](ROADMAP.md) directly into feature specifications.
 
-Maintained with 100% byte parity across Google Antigravity ([`.agents/skills/`](.agents/skills/)) and Claude Code ([`.claude/skills/`](.claude/skills/)):
+### Core Pipeline Integration
 
-| Skill | Status | What We've Added or Changed |
-|---|---|---|
-| **`/speckit-orchestrate`** | **New** | Coordinates context-isolated subagents through clarify, plan, tasks, analyze, implement, and converge, with human review checkpoints. |
-| **`/speckit-bootstrap`** | **New** | Verifies file integrity via SHA-256 manifests, detects configuration drift, and performs non-destructive upgrades across `.specify/`, `.agents/`, and `.claude/`. |
-| **`/speckit-roadmap`** | **New** | Authors, visualizes, audits, and syncs project milestones in [`ROADMAP.md`](ROADMAP.md) directly into feature specifications. |
-| **`/speckit-constitution`** | Modified | Generates and syncs the constitution alongside companion `coding-standards.md` and `logging-standards.md`, supporting optional modules (`MODULE-A` through `MODULE-DOCS`). |
-| **`/speckit-specify`** | Modified | Adds concise template resolution, automatic sequential feature numbering, worktree isolation, roadmap integration, and selective governance loading. |
-| **`/speckit-plan`** | Modified | Adds concise template resolution and constitutional governance checks, loading companion coding standards lazily for architecture and stack context. |
-| **`/speckit-tasks`** | Modified | Adds concise template resolution, defers testing rules to active constitution, and includes documentation tasks for user-facing changes. |
-| **`/speckit-analyze`** | Modified | Adds automated self-healing passes (up to 2 iterations) to align `plan.md` and `tasks.md` with `spec.md`, enforcing constitutional quality gates. |
-| **`/speckit-implement`** | Modified | Enforces full companion coding and logging standards at implementation time, respecting pre-execution hooks and constitutional verification rules. |
-| **`/speckit-clarify`** | Modified | Integrated into the multi-agent orchestrator pipeline with an automated Clarify Gate that pauses for input when ambiguities exist. |
-| **`/speckit-converge`** | Modified | Evaluates as-built code against specifications and tasks, automatically appending unbuilt work back into `tasks.md`. |
-| **`/speckit-checklist`** | Modified | Adds concise template resolution to generate custom requirements-quality checklists. |
+Standard upstream Spec Kit pipeline stages (`specify`, `plan`, `tasks`, and `implement`) are enhanced to dynamically query active project rules in `.specify/memory/constitution.md` and companion standards. Rather than assuming hardcoded testing conventions, subagents inspect the active constitution to enforce project-specific verification gates (e.g., automated test suites vs. declarative static verification).
 
 ---
 
-## Installation & Setup
+## Portable Bootstrapping & Verification Quickstart
 
-You can copy these files into any git repository using the bootstrap script. It installs the managed templates, presets, and skills while keeping existing user files safe:
+### Installation & Target Seeding
 
-### Linux / macOS
+Install managed templates, presets, and agent skills into any target Git repository:
+
 ```bash
-# Install into a target repo
-./bootstrap-speckit.sh /path/to/target-repo
-
-# Overwrite existing files if upgrading
-./bootstrap-speckit.sh /path/to/target-repo --force
+# Linux / macOS
+./bootstrap-speckit.sh /path/to/target-repo [--force]
 ```
-
-### Windows (PowerShell)
 ```powershell
-# Install into a target repo
-pwsh ./bootstrap-speckit.ps1 -TargetRepo "C:\path\to\target-repo"
-
-# Overwrite existing files if upgrading
-pwsh ./bootstrap-speckit.ps1 -TargetRepo "C:\path\to\target-repo" -Force
+# Windows (PowerShell)
+pwsh ./bootstrap-speckit.ps1 -TargetRepo "C:\path\to\target-repo" [-Force]
 ```
 
-### Initializing Governance in Target Repo
+### Governance Initialization
 
-After installing:
-1. Verify the installed files:
-   ```text
-   /speckit-bootstrap --check
-   ```
-2. Initialize the project constitution:
-   ```text
-   /speckit-constitution
-   ```
+1. Verify installed file integrity: `/speckit-bootstrap --check`
+2. Initialize or tune the project constitution: `/speckit-constitution`
 
----
+### Verification Checks
 
-## Verification Checks
+Validate script syntax, cross-client parity, and template consistency:
 
-Commands to verify script syntax, file parity, and templates:
-
-- **Check script syntax**:
-  ```bash
-  bash -n bootstrap-speckit.sh
-  ```
-- **Check parity between `.agents/` and `.claude/`**:
-  ```bash
-  diff -r .agents .claude
-  ```
-- **Check template parity**:
-  ```bash
-  cmp -s .specify/templates/constitution-template.md .specify/presets/base-governance/templates/constitution-template.md
-  cmp -s .specify/templates/coding-standards-template.md .specify/presets/base-governance/templates/coding-standards-template.md
-  cmp -s .specify/templates/logging-standards-template.md .specify/presets/base-governance/templates/logging-standards-template.md
-  ```
+```bash
+bash -n bootstrap-speckit.sh
+diff -r .agents .claude
+cmp -s .specify/templates/constitution-template.md .specify/presets/base-governance/templates/constitution-template.md
+cmp -s .specify/templates/coding-standards-template.md .specify/presets/base-governance/templates/coding-standards-template.md
+cmp -s .specify/templates/logging-standards-template.md .specify/presets/base-governance/templates/logging-standards-template.md
+```
