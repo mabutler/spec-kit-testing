@@ -36,7 +36,7 @@ The multi-agent workflow coordinates context-isolated personas across [`.agents/
 
 ### Custom Skills
 
-- **`/speckit-orchestrate`**: Coordinates subagents sequentially through clarify, plan, tasks, analyze, implement, and converge with human approval gates.
+- **`/speckit-orchestrate`**: Coordinates subagents sequentially through clarify, plan, tasks, analyze, implement, and converge with human approval gates. Supports non-destructive architectural replanning via `/speckit-orchestrate --update='<description>'` (or alias `--amend`), amending planning artifacts and pending tasks in place while preserving completed work.
 - **`/speckit-roadmap`**: Authors, visualizes, audits, and syncs strategic feature milestones in [`ROADMAP.md`](ROADMAP.md) directly into feature specifications.
 - **`/speckit-bootstrap`**: Verifies SHA-256 manifest integrity, detects configuration drift, and applies non-destructive template upgrades.
 
